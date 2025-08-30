@@ -1,10 +1,14 @@
+# SPDX-License-Identifier: CC0-1.0
+
+CL = 
+
 all: hello lilly
 
 lilly: lilly.bin
 
 lilly.bin:
 	cd src; \
-	cl65 -t atari2600 -O -o lilly.bin lilly.c; \
+	$(CL) -t atari2600 -O -o lilly.bin lilly.c; \
 	rm lilly.o
 	mv src/lilly.bin lilly.bin
 
@@ -15,7 +19,7 @@ hello: hello.bin
 
 hello.bin:
 	cd src; \
-	cl65 -t atari2600 -O -o hello.bin hello.c
+	$(CL) -t atari2600 -O -o hello.bin hello.c
 	mv src/hello.bin hello.bin
 
 clean-hello:

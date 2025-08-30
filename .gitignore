@@ -1,3 +1,4 @@
+# binaries
 *.bin
 *.asm
 *.o
@@ -5,4 +6,6 @@
 atari2600.h
 _tia.h
 _riot.h
+# compiling tools
+Makefile
 compile.sh

@@ -1,10 +1,19 @@
-# Check for cc65
-echo -n "Checking for cc65... "
-if command -v cc65 >/dev/null 2>&1; then
-    echo "ok"
-else
+#!/usr/bin/env bash
+
+# SPDX-License-Identifier: CC0-1.0
+
+# Check for cl65
+echo -n "Checking for cl65... "
+
+CL65=$(command -v cl65)
+if [ -z "$CL65" ]; then
     echo "not found"
     exit 1
+else
+    echo "$CL65"
 fi
 
 cp Makefile.in Makefile
+
+# replace variables
+sed -i "s|CL = |CL = $CL65|g" Makefile

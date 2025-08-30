@@ -10,3 +10,7 @@ There's no good tools for this yet.
 ## Compiling
 We are using [cc65](https://cc65.github.io) to compile the code.
 We might switch to a different compiler in the future.
+
+<!--
+SPDX-License-Identifier: CC0-1.0
+-->
