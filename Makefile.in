@@ -1,0 +1,29 @@
+all: hello lilly
+
+lilly: lilly.bin
+
+lilly.bin:
+	cd src; \
+	cl65 -t atari2600 -O -o lilly.bin lilly.c; \
+	rm lilly.o
+	mv src/lilly.bin lilly.bin
+
+clean-lilly:
+	rm -f lilly.bin
+
+hello: hello.bin
+
+hello.bin:
+	cd src; \
+	cl65 -t atari2600 -O -o hello.bin hello.c
+	mv src/hello.bin hello.bin
+
+clean-hello:
+	rm -f hello.bin
+
+clean: clean-lilly clean-hello
+
+distclean: clean
+	rm -f Makefile
+
+.PHONY: all hello lilly clean distclean

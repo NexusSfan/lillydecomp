@@ -1,0 +1,10 @@
+# Check for cc65
+echo -n "Checking for cc65... "
+if command -v cc65 >/dev/null 2>&1; then
+    echo "ok"
+else
+    echo "not found"
+    exit 1
+fi
+
+cp Makefile.in Makefile

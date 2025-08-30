@@ -8,4 +8,5 @@ Now you have the disassembled assembly.
 There's no good tools for this yet.
 
 ## Compiling
-We are using [cc2600](https://github.com/steux/cc2600) to compile the code.
+We are using [cc65](https://cc65.github.io) to compile the code.
+We might switch to a different compiler in the future.

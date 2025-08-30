@@ -1,2 +1,8 @@
 *.bin
 *.asm
+*.o
+# included in cc65
+atari2600.h
+_tia.h
+_riot.h
+compile.sh
