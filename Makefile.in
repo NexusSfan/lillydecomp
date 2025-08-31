@@ -29,5 +29,3 @@ clean: clean-lilly clean-hello
 
 distclean: clean
 	rm -f Makefile
-
-.PHONY: all hello lilly clean distclean

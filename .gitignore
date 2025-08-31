@@ -9,3 +9,4 @@ _riot.h
 # compiling tools
 Makefile
 compile.sh
+play.sh
