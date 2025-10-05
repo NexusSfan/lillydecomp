@@ -8,8 +8,7 @@ lilly: lilly.bin
 
 lilly.bin:
 	cd src; \
-	$(CL) -t atari2600 -O -o lilly.bin lilly.c; \
-	rm lilly.o
+	$(CL) -t atari2600 -O -o lilly.bin lilly.c
 	mv src/lilly.bin lilly.bin
 
 clean-lilly:

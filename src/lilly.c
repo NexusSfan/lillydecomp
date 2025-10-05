@@ -9,7 +9,6 @@
 
 void main(void) {
     unsigned char x = 0;
-    unsigned char cont = 1;
     unsigned char t = 1;
     unsigned char a = 1;
     for/*ever*/(;;) {
@@ -33,17 +32,10 @@ void main(void) {
         // Display frame
         RIOT.t1024t = KERNAL_T1024;
         while (RIOT.timint == 0) {
-        if (cont == 1)
-        {
         TIA.colubk = background1[x]; // Update color
         x++;
-        }
-        else {
-            TIA.colubk = 0x00;
-        }
         if (x == sizeof(background1)) {
             x = 0;
-            // cont = 0;
         }
         }
         TIA.wsync = 0x00;
@@ -53,15 +45,10 @@ void main(void) {
         RIOT.tim64t = OVERSCAN_TIM64;
         while (RIOT.timint == 0) {}
 
-        cont = 1;
-
         // add sound
         TIA.audc0 = 0x01;
-        if (cont == 1)
-        {
         TIA.audf0 = background2[t];
         TIA.audv0 = background3[a];
-        }
         // TIA.audv0 = 0x0F;
 
         if (t == sizeof(background2)) {
