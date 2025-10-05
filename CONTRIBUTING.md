@@ -5,11 +5,14 @@ Load the Lilly Adventure ROM (binary sha256: 6431a0ef0586e411304782da34ddc7d10f3
 Now you have the disassembled assembly.
 
 ## Decompilation
-There's no good tools for this yet.
+Use [Ghidra] with the [RetroGhidra] plugin (which supports Atari VCS) to decompile the Lilly Adventure ROM into psuedocode.
 
 ## Compiling
-We are using [cc65](https://cc65.github.io) to compile the code.
-We might switch to a different compiler in the future.
+We are using [cc65] to compile the code.
+
+[cc65]: https://cc65.github.io
+[Ghidra]: https://ghidra-sre.org
+[RetroGhidra]: https://github.com/hippietrail/RetroGhidra
 
 <!--
 SPDX-License-Identifier: CC0-1.0
