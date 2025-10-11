@@ -1,30 +1,27 @@
 # SPDX-License-Identifier: CC0-1.0
 
 CL = 
+BIN = hello.bin lilly.bin game.bin
 
-all: hello lilly
-
-lilly: lilly.bin
+all: $(BIN)
 
 lilly.bin:
 	cd src; \
 	$(CL) -t atari2600 -O -o lilly.bin lilly.c
 	mv src/lilly.bin lilly.bin
 
-clean-lilly:
-	rm -f lilly.bin
-
-hello: hello.bin
-
 hello.bin:
 	cd src; \
 	$(CL) -t atari2600 -O -o hello.bin hello.c
 	mv src/hello.bin hello.bin
 
-clean-hello:
-	rm -f hello.bin
+game.bin:
+	cd src; \
+	$(CL) -t atari2600 -O -o game.bin game.c
+	mv src/game.bin game.bin
 
-clean: clean-lilly clean-hello
+clean:
+	rm $(BIN)
 
 distclean: clean
-	rm -f Makefile
+	rm Makefile

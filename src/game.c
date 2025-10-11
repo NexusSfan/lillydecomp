@@ -1,155 +1,6 @@
-#include <stdint.h>
-#include <stdbool.h>
-
-// Standard TIA Register Definitions
-#define VBLANK  (*(volatile char *)0x00) // Vertical Blank Enable/Disable
-#define WSYNC   (*(volatile char *)0x01) // Wait for Horizontal Sync
-#define NUSIZ0  (*(volatile char *)0x02) // Number-Size for Player 0/Missile 0
-#define NUSIZ1  (*(volatile char *)0x03) // Number-Size for Player 1/Missile 1
-#define COLUP0  (*(volatile char *)0x04) // Color-Luminance Player 0
-#define COLUP1  (*(volatile char *)0x05) // Color-Luminance Player 1
-#define COLUPF  (*(volatile char *)0x06) // Color-Luminance Playfield/Ball
-#define COLUBK  (*(volatile char *)0x07) // Color-Luminance Background
-#define CTRLPF  (*(volatile char *)0x08) // Control Playfield, Reflection, Score
-#define REFP0   (*(volatile char *)0x09) // Reflect Player 0
-#define REFP1   (*(volatile char *)0x0A) // Reflect Player 1
-#define PF0     (*(volatile char *)0x0B) // Playfield Register Byte 0
-#define PF1     (*(volatile char *)0x0C) // Playfield Register Byte 1
-#define PF2     (*(volatile char *)0x0D) // Playfield Register Byte 2
-#define RESP0   (*(volatile char *)0x10) // Reset Player 0 Horizontal Position
-#define RESP1   (*(volatile char *)0x11) // Reset Player 1 Horizontal Position
-#define RESM0   (*(volatile char *)0x12) // Reset Missile 0 Horizontal Position
-#define RESM1   (*(volatile char *)0x13) // Reset Missile 1 Horizontal Position
-#define RESBL   (*(volatile char *)0x14) // Reset Ball Horizontal Position
-#define AUDC0   (*(volatile char *)0x15) // Audio Control 0
-#define AUDC1   (*(volatile char *)0x16) // Audio Control 1
-#define AUDF0   (*(volatile char *)0x18) // Audio Frequency 0
-#define AUDF1   (*(volatile char *)0x1A) // Audio Frequency 1
-#define AUDV0   (*(volatile char *)0x1B) // Audio Volume 0
-#define AUDV1   (*(volatile char *)0x1C) // Audio Volume 1
-#define GRP0    (*(volatile char *)0x1D) // Graphics Register Player 0
-#define GRP1    (*(volatile char *)0x1E) // Graphics Register Player 1
-#define ENAM0   (*(volatile char *)0x1F) // Enable Missile 0
-#define ENAM1   (*(volatile char *)0x20) // Enable Missile 1
-#define ENABL   (*(volatile char *)0x21) // Enable Ball
-#define HMP0    (*(volatile char *)0x22) // Horizontal Motion Player 0
-#define HMP1    (*(volatile char *)0x23) // Horizontal Motion Player 1
-#define HMOVE   (*(volatile char *)0x2A) // Execute Horizontal Motion
-#define HMCLR   (*(volatile char *)0x2B) // Clear Horizontal Motion Registers
-#define CXCLR   (*(volatile char *)0x2C) // Clear Collision Latches
-
-// RIOT Registers and RAM (0x80-0xFF, with mirrors)
-#define RIOT_INTIM  (*(volatile char *)0x284) // Timer Output (Read)
-#define RIOT_SWCHB  (*(volatile char *)0x282) // RIOT I/O Port B (Read)
-#define RIOT_TSTRT  (*(volatile char *)0x296) // Timer Start (Write to 0x296/0x294)
-
-// Custom aliases for TIA/RIOT registers that are only read in the loop (assuming memory map)
-#define TIA_CXM0P_R  (*(volatile char *)0x30) // Collision Missle 0 / Player (Read)
-#define TIA_CXP0FB_R (*(volatile char *)0x32) // Collision Player 0 / Playfield (Read)
-
-// Re-map DAT_00xx variables and functions - retained as is
-#define DAT_0080 ((char *)0x80)
-#define DAT_0088 (*(volatile char *)0x88)
-#define DAT_0089 (*(volatile char *)0x89)
-#define DAT_008a (*(volatile char *)0x8a)
-#define DAT_008d (*(volatile char *)0x8d)
-#define DAT_008e (*(volatile char *)0x8e)
-#define DAT_008f (*(volatile char *)0x8f)
-#define DAT_0090 (*(volatile char *)0x90)
-#define DAT_0095 ((char *)0x95)
-#define DAT_009d (*(volatile char *)0x9d)
-#define DAT_009f (*(volatile char *)0x9f)
-#define DAT_00a1 (*(volatile char *)0xa1)
-#define DAT_00a3 (*(volatile char *)0xa3)
-#define DAT_00a5 (*(volatile char *)0xa5)
-#define DAT_00a7 ((char *)0xa7)
-#define DAT_00a9 ((char *)0xa9)
-#define DAT_00af (*(volatile unsigned short *)0xaf)
-#define DAT_00b1 (*(volatile unsigned short *)0xb1)
-#define DAT_00b8 (*(volatile char *)0xb8)
-#define DAT_00bb (*(volatile char *)0xbb)
-#define DAT_00bd (*(volatile char *)0xbd)
-#define DAT_00be (*(volatile char *)0xbe)
-#define DAT_00bf (*(volatile char *)0xbf)
-#define DAT_00c0 (*(volatile char *)0xc0)
-#define DAT_00c1 (*(volatile char *)0xc1)
-#define DAT_00c2 (*(volatile char *)0xc2)
-#define DAT_00c3 (*(volatile char *)0xc3)
-#define DAT_00c4 (*(volatile char *)0xc4)
-#define DAT_00c5 (*(volatile char *)0xc5)
-#define DAT_00c6 (*(volatile char *)0xc6)
-#define DAT_00c7 (*(volatile char *)0xc7)
-#define DAT_00c8 (*(volatile char *)0xc8)
-#define DAT_00c9 (*(volatile char *)0xc9)
-#define DAT_00ca (*(volatile char *)0xca)
-#define DAT_00cc (*(volatile char *)0xcc)
-#define DAT_00cd (*(volatile char *)0xcd)
-#define DAT_00d1 (*(volatile char *)0xd1)
-#define DAT_00d2 (*(volatile char *)0xd2)
-#define DAT_00d3 (*(volatile char *)0xd3)
-#define DAT_00d4 (*(volatile char *)0xd4)
-#define DAT_00d5 (*(volatile char *)0xd5)
-#define DAT_00d6 (*(volatile char *)0xd6)
-#define DAT_00d7 (*(volatile char *)0xd7)
-#define DAT_00d8 (*(volatile char *)0xd8)
-#define DAT_00d9 (*(volatile char *)0xd9)
-#define DAT_00da (*(volatile char *)0xda)
-#define DAT_00db (*(volatile char *)0xdb)
-#define DAT_00de (*(volatile char *)0xde)
-#define DAT_00df (*(volatile char *)0xdf)
-#define DAT_00e0 ((char *)0xe0)
-#define DAT_00e4 (*(volatile char *)0xe4)
-#define DAT_00e5 (*(volatile char *)0xe5)
-#define DAT_00e6 (*(volatile char *)0xe6)
-#define DAT_00e7 (*(volatile char *)0xe7)
-#define DAT_00e8 (*(volatile char *)0xe8)
-#define DAT_00e9 (*(volatile char *)0xe9)
-#define DAT_00ea (*(volatile char *)0xea)
-#define DAT_00ed (*(volatile char *)0xed)
-#define DAT_00ee (*(volatile char *)0xee)
-#define DAT_0280 (*(volatile char *)0x280) // RIOT I/O Port A (Console Switches, Read)
-
-#define UNK_fd27 ((char *)0xfd27)
-#define UNK_fbc5 ((char *)0xfbc5)
-#define DAT_fd00 ((char *)0xfd00)
-#define DAT_f8ae ((char *)0xf8ae)
-#define DAT_f8b0 ((char *)0xf8b0)
-#define DAT_f1da ((char *)0xf1da)
-#define DAT_f8b6 ((char *)0xf8b6)
-#define DAT_f8b2 ((char *)0xf8b2)
-#define DAT_f8b4 ((char *)0xf8b4)
-#define DAT_f9b6 ((char *)0xf9b6)
-#define DAT_f81b ((char *)0xf81b)
-#define DAT_fb95 ((char *)0xfb95)
-#define DAT_fb99 ((char *)0xfb99)
-#define DAT_fbc0 ((char *)0xfbc0)
-#define DAT_fbbb ((char *)0xfbbb)
-#define DAT_fb9d ((char *)0xfb9d)
-#define UNK_f81d ((char *)0xf81d)
-
-// Function declarations (placeholders)
-char FUN_fb1b(char param_1);
-char FUN_fb35(void);
-void FUN_fa1f(char param_1, ushort param_2);
-void FUN_fb44(void);
-void FUN_f8d6(void);
-void FUN_f9d6(char param_1);
-void FUN_f9f1(char param_1);
-void FUN_fab7(void);
-void FUN_fafd(char param_1, char param_2);
-char FUN_fade(char param_1); // Assuming 1 parameter based on usage
-char FUN_fade(void); // Assuming 0 parameter based on usage
-void FUN_f88a(void);
-void FUN_fb3a(void);
-void FUN_f87c(void);
-void halt_baddata(void);
-bool CARRY1(char param_1, char param_2); // Assuming CARRY1 is a macro/function returning bool
-char CONCAT11(char param_1, char param_2); // Assuming CONCAT11 combines two bytes into a short (or vice-versa in context)
-
-// Type redefinitions
-typedef char byte;
-typedef unsigned short ushort;
-typedef char undefined1;
+// Lilly Adventure (1983)
+// SPDX-License-Identifier: CC0-1.0
+#include "game.h"
 
 // The main code starts here with remapped TIA registers:
 
@@ -183,77 +34,77 @@ void main(void)
         } while (-1 < (char)bVar7);
 
         // TIA Register Writes
-        RESP0 = 0x32; // DAT_0010 = 0x32;
-        ENAM1 = 0x10; // DAT_0020 = 0x10;
-        HMP0  = 0xf0; // DAT_0022 = 0xf0;
-        HMP1  = 0xf0; // DAT_0023 = 0xf0;
+        TIA.resp0 = 0x32; // DAT_0010 = 0x32;
+        TIA.enam1 = 0x10; // DAT_0020 = 0x10;
+        TIA.hmp0  = 0xf0; // DAT_0022 = 0xf0;
+        TIA.hmp1  = 0xf0; // DAT_0023 = 0xf0;
 
         cVar5 = 0x0e;
         while (cVar5 = cVar5 + -1, -1 < cVar5) {
             *(char *)(DAT_008a - 0x1000) = *(char *)(DAT_008a - 0x1000) << 1;
         }
 
-        GRP0    = 0; // DAT_001d = 0;
-        COLUPF  = DAT_0088; // DAT_0006 = DAT_0088;
-        RESP1   = 0; // DAT_0011 = 0;
-        COLUBK  = DAT_0089; // DAT_0007 = DAT_0089;
-        ENABL   = 0x10; // DAT_0021 = 0x10;
+        TIA.grp0    = 0; // DAT_001d = 0;
+        TIA.colupf  = DAT_0088; // DAT_0006 = DAT_0088;
+        TIA.resp1   = 0; // DAT_0011 = 0;
+        TIA.colubk  = DAT_0089; // DAT_0007 = DAT_0089;
+        TIA.enabl   = 0x10; // DAT_0021 = 0x10;
 
         bVar7 = 6;
         do {
-            REFP1 = 0x34; // DAT_000a = 0x34;
+            TIA.refp1 = 0x34; // DAT_000a = 0x34;
             uVar2 = (ushort)bVar7;
             bVar7 = bVar7 - 1;
         } while (-1 < (char)bVar7);
 
         cVar5 = 0x0f;
         do {
-            AUDV0 = 0; // DAT_001b = 0;
-            AUDV1 = 0; // DAT_001c = 0;
+            TIA.audv0 = 0; // DAT_001b = 0;
+            TIA.audv1 = 0; // DAT_001c = 0;
             cVar5 = cVar5 + -1;
         } while (-1 < cVar5);
 
         cVar5 = 4;
         do {
-            REFP0 = DAT_008d; // DAT_0009 = DAT_008d;
+            TIA.refp0 = DAT_008d; // DAT_0009 = DAT_008d;
             cVar5 = cVar5 + -1;
         } while (cVar5 != 0);
 
-        CXCLR   = 0xcc; // DAT_002c = 0xcc;
-        CTRLPF  = 0; // DAT_0008 = 0;
-        ENAM0   = 2; // DAT_001f = 2;
+        TIA.cxclr   = 0xcc; // DAT_002c = 0xcc;
+        TIA.ctrlpf  = 0; // DAT_0008 = 0;
+        TIA.enam0   = 2; // DAT_001f = 2;
         uVar3 = 2;
         cVar6 = 2;
         cVar5 = 0;
 
-        COLUP0  = 0; // DAT_0004 = 0;
-        COLUP1  = 0; // DAT_0005 = 0;
-        PF2     = 0; // DAT_000d = 0;
-        PF0     = 0; // DAT_000e = 0;
-        PF1     = 0; // DAT_000f = 0;
-        HMCLR   = (&UNK_fd27)[uVar2]; // DAT_002b = (&UNK_fd27)[uVar2];
+        TIA.colup0  = 0; // DAT_0004 = 0;
+        TIA.colup1  = 0; // DAT_0005 = 0;
+        TIA.pf2     = 0; // DAT_000d = 0;
+        TIA.pf0     = 0; // DAT_000e = 0;
+        TIA.pf1     = 0; // DAT_000f = 0;
+        TIA.hmclr   = (&UNK_fd27)[uVar2]; // DAT_002b = (&UNK_fd27)[uVar2];
 
         while( true ) {
-            NUSIZ0 = uVar3; // DAT_0002 = uVar3;
-            HMOVE  = uVar3; // DAT_002a = uVar3;
+            TIA.nusiz0 = uVar3; // DAT_0002 = uVar3;
+            TIA.hmove  = uVar3; // DAT_002a = uVar3;
 
-            NUSIZ0 = FUN_fb1b(*(undefined1 *)(ushort)(byte)(cVar6 + 0xb7)); // DAT_0002 = FUN_fb1b(...)
+            TIA.nusiz0 = FUN_fb1b(*(undefined1 *)(ushort)(byte)(cVar6 + 0xb7)); // DAT_0002 = FUN_fb1b(...)
 
-            *(byte *)(ushort)(byte)(cVar6 + ENAM0) = NUSIZ0; // ENAM0 is at 0x1f
+            *(byte *)(ushort)(byte)(cVar6 + TIA.enam0) = TIA.nusiz0; // ENAM0 is at 0x1f
 
             do {
                 cVar5 = cVar5 + -1;
             } while (-1 < cVar5);
 
-            *(byte *)(ushort)(byte)(cVar6 + PF1) = NUSIZ0; // PF1 is at 0x0f
+            *(byte *)(ushort)(byte)(cVar6 + TIA.pf1) = TIA.nusiz0; // PF1 is at 0x0f
 
-            COLUBK = DAT_00ee; // DAT_0007 = DAT_00ee;
-            PF0 = DAT_00bf; // DAT_000b = DAT_00bf;
-            REFP1 = 0x31; // DAT_000a = 0x31;
-            HMOVE = NUSIZ0; // DAT_002a = DAT_0002;
+            TIA.colubk = DAT_00ee; // DAT_0007 = DAT_00ee;
+            TIA.pf0 = DAT_00bf; // DAT_000b = DAT_00bf;
+            TIA.refp1 = 0x31; // DAT_000a = 0x31;
+            TIA.hmove = TIA.nusiz0; // DAT_002a = DAT_0002;
 
             uVar3 = FUN_fb35();
-            HMCLR = uVar3; // DAT_002b = uVar3;
+            TIA.hmclr = uVar3; // DAT_002b = uVar3;
 
             cVar6 = cVar6 + -1;
             if (cVar6 == 0) break;
@@ -306,13 +157,13 @@ void main(void)
         }
         
         bVar7 = cVar6 + 3;
-        ENAM0 = 0; // DAT_001f = 0;
+        TIA.enam0 = 0; // DAT_001f = 0;
         
         if ((-1 < (char)(bVar7 - DAT_00bd)) && (-1 < (char)DAT_00be)) {
             DAT_00be = DAT_00be - 1;
         }
         
-        CTRLPF = 0x24; // DAT_0008 = 0x24;
+        TIA.ctrlpf = 0x24; // DAT_0008 = 0x24;
         
         do {
             if (((char)(bVar7 - DAT_00bd) < '\0') || ((char)DAT_00be < '\0')) {
@@ -325,14 +176,14 @@ void main(void)
             bVar8 = 0x35 < bVar7;
         } while (bVar7 != 0x36);
         
-        PF2 = 0xf0; // DAT_000d = 0xf0;
+        TIA.pf2 = 0xf0; // DAT_000d = 0xf0;
         cVar5 = '6';
         
         do {
             cVar6 = cVar5;
             bVar7 = (byte)((cVar6 + -0x36) - !bVar8) >> 2;
-            PF0 = *(undefined1 *)(DAT_00a7 + (ushort)bVar7); // DAT_000e = *(...)
-            PF1 = *(undefined1 *)(DAT_00a9 + (ushort)bVar7); // DAT_000f = *(...)
+            TIA.pf0 = *(undefined1 *)(DAT_00a7 + (ushort)bVar7); // DAT_000e = *(...)
+            TIA.pf1 = *(undefined1 *)(DAT_00a9 + (ushort)bVar7); // DAT_000f = *(...)
             
             if (((char)(cVar6 - DAT_00bd) < '\0') || ((char)DAT_00be < '\0')) {
                 // UndefinedFunction_f000 = (code)((char)UndefinedFunction_f000 << 1);
@@ -346,7 +197,7 @@ void main(void)
         
         cVar5 = DAT_00c3;
         if (DAT_00c3 < '\0') {
-            RESP1 = 0; // DAT_0011 = 0;
+            TIA.resp1 = 0; // DAT_0011 = 0;
             
             if (((char)('J' - DAT_00bd) < '\0') || ((char)DAT_00be < '\0')) {
                 // UndefinedFunction_f000 = (code)((char)UndefinedFunction_f000 << 1);
@@ -354,7 +205,7 @@ void main(void)
             }
             else {
                 /* WARNING (jumptable): Read-only address (RAM,0xf04a) is written */
-                RESP1 = *(undefined1 *)(DAT_00a5 + (ushort)DAT_00be); // DAT_0011 = *(...)
+                TIA.resp1 = *(undefined1 *)(DAT_00a5 + (ushort)DAT_00be); // DAT_0011 = *(...)
                 DAT_00be = DAT_00be - 1;
             }
             
@@ -369,7 +220,7 @@ void main(void)
                 cVar5 = cVar5 + -1;
             } while (-1 < cVar5);
             
-            RESP1 = 0; // DAT_0011 = 0;
+            TIA.resp1 = 0; // DAT_0011 = 0;
             
             if ((-1 < (char)('J' - DAT_00bd)) && (-1 < (char)DAT_00be)) {
                 DAT_00be = DAT_00be - 1;
@@ -383,31 +234,31 @@ void main(void)
         }
         
         cVar6 = cVar6 + '\x03';
-        COLUP1 = DAT_00c5; // DAT_0005 = DAT_00c5;
-        ENABL = DAT_00c5; // DAT_0021 = DAT_00c5;
-        COLUBK = 0x3a; // DAT_0007 = 0x3a;
+        TIA.colup1 = DAT_00c5; // DAT_0005 = DAT_00c5;
+        TIA.enabl = DAT_00c5; // DAT_0021 = DAT_00c5;
+        TIA.colubk = 0x3a; // DAT_0007 = 0x3a;
         DAT_008e = 0;
         bVar7 = DAT_00be;
         
         do {
-            NUSIZ0 = (&DAT_fd00)[bVar7]; // DAT_0002 = (&DAT_fd00)[bVar7];
-            AUDV0 = DAT_008f; // DAT_001b = DAT_008f;
-            AUDV1 = *(undefined1 *)(DAT_00a3 + (ushort)DAT_008e); // DAT_001c = *(...)
+            TIA.nusiz0 = (&DAT_fd00)[bVar7]; // DAT_0002 = (&DAT_fd00)[bVar7];
+            TIA.audv0 = DAT_008f; // DAT_001b = DAT_008f;
+            TIA.audv1 = *(undefined1 *)(DAT_00a3 + (ushort)DAT_008e); // DAT_001c = *(...)
             DAT_008e = DAT_008e + 1;
-            HMCLR = 0; // DAT_002b = 0;
+            TIA.hmclr = 0; // DAT_002b = 0;
             bVar7 = DAT_008e;
             
             if ((-1 < (char)(cVar6 - DAT_00bd)) && (bVar7 = DAT_00be, -1 < (char)DAT_00be)) {
-                HMCLR = *(byte *)(DAT_00a5 + (ushort)DAT_00be); // DAT_002b = *(...)
+                TIA.hmclr = *(byte *)(DAT_00a5 + (ushort)DAT_00be); // DAT_002b = *(...)
                 bVar7 = DAT_00be - 1;
                 DAT_00be = bVar7;
             }
             cVar6 = cVar6 + '\x01';
-            DAT_008f = HMCLR;
+            DAT_008f = TIA.hmclr;
         } while (cVar6 != 'U');
         
-        COLUPF = NUSIZ0; // DAT_0006 = DAT_0002;
-        HMOVE = NUSIZ0; // DAT_002a = DAT_0002;
+        TIA.colupf = TIA.nusiz0; // DAT_0006 = DAT_0002;
+        TIA.hmove = TIA.nusiz0; // DAT_002a = DAT_0002;
 
         FUN_fa1f(3, 0xa3);
         FUN_fb44();
@@ -417,7 +268,7 @@ void main(void)
         DAT_00b1._0_1_ = 0xe3;
         
         FUN_fb44();
-        RIOT_TSTRT = 0x3a; // DAT_0296 = 0x3a;
+        RIOT.tstrt = 0x3a; // DAT_0296 = 0x3a;
         
         if ((DAT_00d1 != '\0') && ((DAT_00c7 & 0x80) != 0x80)) {
             if ((DAT_00e8 & 7) == 0) {
@@ -430,7 +281,7 @@ void main(void)
             }
             else {
             LAB_f42e:
-                if ((COLUBK & 0x80) == 0x80) { // DAT_0007 & 0x80
+                if ((TIA.colubk & 0x80) == 0x80) { // DAT_0007 & 0x80
                 LAB_f43a:
                     if ((0x35 < DAT_00bd) && ((char)DAT_00a3 != '@')) goto LAB_f450;
                     goto LAB_f446;
@@ -442,7 +293,7 @@ void main(void)
         }
     LAB_f450:
         if ((DAT_00c7 & 0x40) == 0x40) {
-            if ((DAT_00c8 < 0x1c) && ((NUSIZ0 & 0x80) != 0x80)) { // DAT_0002 & 0x80
+            if ((DAT_00c8 < 0x1c) && ((TIA.nusiz0 & 0x80) != 0x80)) { // DAT_0002 & 0x80
                 if (DAT_00c8 < 0xc) {
                 LAB_f507:
                     DAT_00bd = DAT_00bd - 4;
@@ -462,8 +313,8 @@ void main(void)
         }
         else {
             if (DAT_00bd < 0x80) {
-                if ((((NUSIZ0 & 0x80) != 0x80) || (0x28 < DAT_00bd)) && // DAT_0002 & 0x80
-                    (((DAT_00c7 & 0x80) == 0x80 || (((COLUBK & 0x80) != 0x80 || (DAT_00bd < 0x36)))))) { // DAT_0007 & 0x80
+                if ((((TIA.nusiz0 & 0x80) != 0x80) || (0x28 < DAT_00bd)) && // DAT_0002 & 0x80
+                    (((DAT_00c7 & 0x80) == 0x80 || (((TIA.colubk & 0x80) != 0x80 || (DAT_00bd < 0x36)))))) { // DAT_0007 & 0x80
                     if ((DAT_00e8 & 1) == 0) {
                         DAT_00bd = DAT_00bd + 1;
                     }
@@ -480,7 +331,7 @@ void main(void)
                 DAT_00b8 = 8;
                 DAT_00c7 = DAT_00c7 & 0x7f;
                 if ((DAT_00d1 != '\0') &&
-                    (((RIOT_SWCHB & 0x80) != 0x80 || (DAT_00d1 = DAT_00d1 + -1, DAT_00d1 != '\0')))) {
+                    (((RIOT.SWCHB & 0x80) != 0x80 || (DAT_00d1 = DAT_00d1 + -1, DAT_00d1 != '\0')))) {
                     DAT_00cc = 0x10;
                     DAT_00cd = 0;
                 }
@@ -489,7 +340,7 @@ void main(void)
                 }
             }
             if (DAT_00d1 != '\0') {
-                if ((PF1 & 0x80) == 0x80) { // DAT_000c & 0x80
+                if ((TIA.pf1 & 0x80) == 0x80) { // DAT_000c & 0x80
                     DAT_00c7 = DAT_00c7 & 0xdf;
                     DAT_00c8 = 0;
                 }
@@ -501,7 +352,7 @@ void main(void)
             }
         }
     LAB_f51d:
-        if ((DAT_00d1 != '\0') && (((NUSIZ0 & 0x80) != 0x80 || (DAT_00bd < 0x29)))) { // DAT_0002 & 0x80
+        if ((DAT_00d1 != '\0') && (((TIA.nusiz0 & 0x80) != 0x80 || (DAT_00bd < 0x29)))) { // DAT_0002 & 0x80
             if ((DAT_0280 & 0x80) == 0x80) {
                 if ((DAT_0280 & 0x40) != 0x40) {
                     if ((8 < DAT_00b8) && ((DAT_00e8 & 3) == 0)) {
@@ -663,17 +514,17 @@ void main(void)
         }
         
         do {
-        } while (RIOT_INTIM != '\0'); // DAT_0284 != '\0'
+        } while (RIOT.intim != '\0'); // DAT_0284 != '\0'
         
-        WSYNC = 0x82; // DAT_0001 = 0x82;
-        NUSIZ0 = 0x82; // DAT_0002 = 0x82;
-        VBLANK = RIOT_INTIM; // DAT_0000 = DAT_0284;
+        TIA.wsync = 0x82; // DAT_0001 = 0x82;
+        TIA.nusiz0 = 0x82; // DAT_0002 = 0x82;
+        TIA.vblank = RIOT.intim; // DAT_0000 = DAT_0284;
         
         DAT_00e8 = DAT_00e8 + 1;
-        RIOT_TSTRT = 0x20; // DAT_0296 = 0x20;
+        RIOT.tstrt = 0x20; // DAT_0296 = 0x20;
         
-        bVar8 = (bool)(RIOT_SWCHB & 1); // DAT_0282 & 1
-        RIOT_SWCHB = RIOT_SWCHB >> 1; // DAT_0282 >> 1
+        bVar8 = (bool)(RIOT.swchb & 1); // DAT_0282 & 1
+        RIOT.swchb = RIOT.swchb >> 1; // DAT_0282 >> 1
         
         if (!bVar8) {
             FUN_fab7();
@@ -683,7 +534,7 @@ void main(void)
         
         uVar3 = 0xea;
         
-        if (((DAT_00c7 & 0x80) != 0x80) && (((COLUBK & 0x80) == 0x80 || ((NUSIZ0 & 0x80) == 0x80))))
+        if (((DAT_00c7 & 0x80) != 0x80) && (((TIA.colubk & 0x80) == 0x80 || ((TIA.nusiz0 & 0x80) == 0x80))))
         { // DAT_0007 & 0x80, DAT_0002 & 0x80
             uVar3 = (&DAT_f81b)[DAT_00b8 & 1];
         }
@@ -715,7 +566,7 @@ void main(void)
         }
         
         DAT_00d8 = DAT_00d8 + -1;
-        AUDC0 = DAT_00e5; // DAT_0015 = DAT_00e5;
+        TIA.audc0 = DAT_00e5; // DAT_0015 = DAT_00e5;
         
         FUN_fafd(*(undefined1 *)(DAT_00e0 + (ushort)DAT_00da), 0);
         
@@ -732,35 +583,35 @@ void main(void)
         DAT_00d9 = DAT_00d9 + -1;
         
         if (DAT_00d2 == 0) {
-            AUDC1 = DAT_00e5; // DAT_0016 = DAT_00e5;
+            TIA.audc1 = DAT_00e5; // DAT_0016 = DAT_00e5;
             FUN_fade(DAT_00db);
             FUN_fafd(1, 0); // Assuming two parameters for fafd
         }
         
         if (DAT_00d2 == 0) {
             if ((DAT_00bd + 0xb4 & ~DAT_00bd & 0x80) != 0) {
-                AUDF0 = (&DAT_f8b6)[DAT_00e8]; // DAT_0018 = (&DAT_f8b6)[DAT_00e8];
-                AUDF1 = (byte)(DAT_00bd + 0xb4) >> 2 ^ 0xf; // DAT_001a = (...)
-                AUDC1 = 0xc; // DAT_0016 = 0xc;
+                TIA.audf0 = (&DAT_f8b6)[DAT_00e8]; // DAT_0018 = (&DAT_f8b6)[DAT_00e8];
+                TIA.audf1 = (byte)(DAT_00bd + 0xb4) >> 2 ^ 0xf; // DAT_001a = (...)
+                TIA.audc1 = 0xc; // DAT_0016 = 0xc;
             }
         }
         else {
             if ((DAT_00c7 & 0x80) == 0x80) {
-                AUDC1 = 3; // DAT_0016 = 3;
-                AUDF0 = 0x1f; // DAT_0018 = 0x1f;
+                TIA.audc1 = 3; // DAT_0016 = 3;
+                TIA.audf0 = 0x1f; // DAT_0018 = 0x1f;
             LAB_f7f4:
                 DAT_00d2 = DAT_00d2 - 1;
                 if (DAT_00d2 == 0) {
-                    AUDF1 = 0; // DAT_001a = 0;
+                    TIA.audf1 = 0; // DAT_001a = 0;
                     goto LAB_f1ec;
                 }
             }
             else {
-                AUDF0 = (&UNK_f81d)[DAT_00d2]; // DAT_0018 = (&UNK_f81d)[DAT_00d2];
-                AUDC1 = 4; // DAT_0016 = 4;
+                TIA.audf0 = (&UNK_f81d)[DAT_00d2]; // DAT_0018 = (&UNK_f81d)[DAT_00d2];
+                TIA.audc1 = 4; // DAT_0016 = 4;
                 if ((DAT_00e8 & 3) == 0) goto LAB_f7f4;
             }
-            AUDF1 = 0xf; // DAT_001a = 0xf;
+            TIA.audf1 = 0xf; // DAT_001a = 0xf;
         }
     LAB_f1ec:
         FUN_f88a();
@@ -775,10 +626,10 @@ void main(void)
         FUN_f87c();
         
         do {
-        } while (RIOT_INTIM != '\0'); // DAT_0284 != '\0'
+        } while (RIOT.intim != '\0'); // DAT_0284 != '\0'
         
         FUN_fa1f(0, (ushort)DAT_0080);
-        RIOT_TSTRT = 5; // DAT_0296 = 5;
+        RIOT.tstrt = 5; // DAT_0296 = 5;
         FUN_f87c();
         
         if ((DAT_00ed & 0x80) == 0x80) {
@@ -792,11 +643,11 @@ void main(void)
         }
         
         do {
-        } while (RIOT_INTIM != '\0'); // DAT_0284 != '\0'
+        } while (RIOT.intim != '\0'); // DAT_0284 != '\0'
         
-        HMOVE = RIOT_INTIM; // DAT_002a = DAT_0284;
-        WSYNC = RIOT_INTIM; // DAT_0001 = DAT_0284;
-        NUSIZ0 = RIOT_INTIM; // DAT_0002 = DAT_0284;
+        TIA.hmove = RIOT.intim; // DAT_002a = DAT_0284;
+        TIA.wsync = RIOT.intim; // DAT_0001 = DAT_0284;
+        TIA.nusiz0 = RIOT.intim; // DAT_0002 = DAT_0284;
         
         FUN_fb44();
         cVar5 = 0x18;

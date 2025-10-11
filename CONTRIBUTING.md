@@ -10,9 +10,13 @@ Use [Ghidra] with the [RetroGhidra] plugin (which supports Atari VCS) to decompi
 ## Compiling
 We are using [cc65] to compile the code.
 
+## License
+All contributions will be licensed under the Creative Commons [CC0] License.
+
 [cc65]: https://cc65.github.io
 [Ghidra]: https://ghidra-sre.org
 [RetroGhidra]: https://github.com/hippietrail/RetroGhidra
+[CC0]: https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt
 
 <!--
 SPDX-License-Identifier: CC0-1.0
