@@ -1,24 +1,19 @@
 # SPDX-License-Identifier: CC0-1.0
 
-CL = 
-BIN = hello.bin lilly.bin game.bin
+ASM = 
+BIN = immortal.bin PlayLilly.bin
 
 all: $(BIN)
 
-lilly.bin:
-	cd src; \
-	$(CL) -t atari2600 -O -o lilly.bin lilly.c
-	mv src/lilly.bin lilly.bin
+immortal.bin:
+	cd asm; \
+	$(ASM) immortal\ lilly.asm -f3 -oimmortal.bin
+	mv asm/immortal.bin immortal.bin
 
-hello.bin:
-	cd src; \
-	$(CL) -t atari2600 -O -o hello.bin hello.c
-	mv src/hello.bin hello.bin
-
-game.bin:
-	cd src; \
-	$(CL) -t atari2600 -O -o game.bin game.c
-	mv src/game.bin game.bin
+PlayLilly.bin:
+	cd asm; \
+	$(ASM) PlayLilly.asm -f3 -oPlayLilly.bin
+	mv asm/PlayLilly.bin PlayLilly.bin
 
 clean:
 	rm $(BIN)

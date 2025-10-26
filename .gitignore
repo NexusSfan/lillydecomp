@@ -1,6 +1,5 @@
 # binaries
 *.bin
-*.asm
 *.o
 # included in cc65
 atari2600.h

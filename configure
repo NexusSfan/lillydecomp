@@ -2,18 +2,18 @@
 
 # SPDX-License-Identifier: CC0-1.0
 
-# Check for cl65
-echo -n "Checking for cl65... "
+# Check for dasm
+echo -n "Checking for dasm... "
 
-CL65=$(command -v cl65)
-if [ -z "$CL65" ]; then
+DASM=$(command -v dasm)
+if [ -z "$DASM" ]; then
     echo "not found"
     exit 1
 else
-    echo "$CL65"
+    echo "$DASM"
 fi
 
 cp Makefile.in Makefile
 
 # replace variables
-sed -i "s|CL = |CL = $CL65|g" Makefile
+sed -i "s|ASM = |ASM = $DASM|g" Makefile

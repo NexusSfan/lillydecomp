@@ -1,5 +1,5 @@
 # Lilly Adventure Decomp
-Just a project for me to learn C and assembly.
+A project to fully document Lilly Adventure.
 
 ## Contributing
 See [CONTRIBUTING.md](./CONTRIBUTING.md)
