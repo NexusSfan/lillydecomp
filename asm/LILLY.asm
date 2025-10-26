@@ -159,15 +159,15 @@ ram_B5          = $b5
 ;                 $b6  (i)
 ram_B7          = $b7
 player_X        = $b8
-ram_B9          = $b9
+bird_X          = $b9
 ;                 $ba  (i)
-ram_BB          = $bb
+bird_Y          = $bb
 ;                 $bc  (i)
 player_Y        = $bd
 ram_BE          = $be
 ram_BF          = $bf
 ram_C0          = $c0
-ram_C1          = $c1
+swimming_X      = $c1
 ram_C2          = $c2
 ram_C3          = $c3
 ram_C4          = $c4
@@ -178,8 +178,8 @@ ram_C8          = $c8
 ram_C9          = $c9
 ram_CA          = $ca
 ram_CB          = $cb
-ram_CC          = $cc
-ram_CD          = $cd
+timer_digit_1   = $cc
+timer_digit_2_3 = $cd
 ram_CE          = $ce
 ;                 $cf  (i)
 ;                 $d0  (i)
@@ -225,6 +225,8 @@ ram_EE          = $ee
 ;-----------------------------------------------------------
 ;      User Defined Labels
 ;-----------------------------------------------------------
+
+; Ignore errors made by these.
 
 Start           = $f1dc
 set_player_dead = $f44a
@@ -530,7 +532,7 @@ Lf200
     sta     HMOVE                   ;3   =   3
 Lf204
     lda     #$00                    ;2        
-    cpx     ram_BB                  ;3        
+    cpx     bird_Y                  ;3        
     bmi     Lf213                   ;2/3      
     ldy     ram_C0                  ;3        
     bmi     Lf213                   ;2/3      
@@ -845,15 +847,15 @@ Lf3e3
     bne     Lf42e                   ;2/3       *
     sed                             ;2         *
     sec                             ;2         *
-    lda     ram_CD                  ;3         *
+    lda     timer_digit_2_3                  ;3         *
     sbc     #$01                    ;2         *
-    sta     ram_CD                  ;3         *
-    lda     ram_CC                  ;3         *
+    sta     timer_digit_2_3                  ;3         *
+    lda     timer_digit_1                  ;3         *
     sbc     #$00                    ;2         *
-    sta     ram_CC                  ;3         *
+    sta     timer_digit_1                  ;3         *
     cld                             ;2         *
     bne     Lf42e                   ;2/3       *
-    lda     ram_CD                  ;3         *
+    lda     timer_digit_2_3                  ;3         *
     beq     Lf446                   ;2/3 = 104 *
 Lf42e
     bit     CXPPMM                  ;3         *
@@ -906,9 +908,9 @@ Lf45d
     beq     Lf487                   ;2/3 =  45 *
 Lf47f
     lda     #$10                    ;2         *
-    sta     ram_CC                  ;3         *
+    sta     timer_digit_1                  ;3         *
     lda     #$00                    ;2         *
-    sta     ram_CD                  ;3   =  10 *
+    sta     timer_digit_2_3                  ;3   =  10 *
 Lf487
     lda     ram_D4                  ;3         *
     lsr                             ;2         *
@@ -1046,9 +1048,9 @@ Lf560
     bpl     Lf560                   ;2/3       *
     cld                             ;2         *
     inx                             ;2         *
-    stx     ram_CD                  ;3         *
+    stx     timer_digit_2_3                  ;3         *
     lda     #$10                    ;2         *
-    sta     ram_CC                  ;3         *
+    sta     timer_digit_1                  ;3         *
     lda     ram_D1                  ;3         *
     sed                             ;2         *
     clc                             ;2         *
@@ -1199,7 +1201,7 @@ Lf64a
     ldy     ram_C9,x                ;4        
     lda     Lf8b6,y                 ;4        
     sta     ram_8E                  ;3        
-    ldy     ram_B9,x                ;4        
+    ldy     bird_X,x                ;4        
     cpy     ram_8E                  ;3        
     bcs     Lf666                   ;2/3      
     cpy     #$88                    ;2        
@@ -1211,7 +1213,7 @@ Lf666
     bcc     Lf66b                   ;2/3      
     dey                             ;2   =   6
 Lf66b
-    sty     ram_B9,x                ;4        
+    sty     bird_X,x                ;4        
     lda     Lf8b2,x                 ;4        
     sta     ram_8F                  ;3        
     lda     Lf8b4,x                 ;4        
@@ -1219,7 +1221,7 @@ Lf66b
     lda     ram_8E                  ;3        
     and     #$1f                    ;2        
     sta     ram_8E                  ;3        
-    ldy     ram_BB,x                ;4        
+    ldy     bird_Y,x                ;4        
     cpy     ram_8E                  ;3        
     bcs     Lf68a                   ;2/3      
     cpy     ram_8F                  ;3        
@@ -1231,18 +1233,18 @@ Lf68a
     bcc     Lf68f                   ;2/3      
     dey                             ;2   =   7
 Lf68f
-    sty     ram_BB,x                ;4   =   4
+    sty     bird_Y,x                ;4   =   4
 Lf691
     lda     ram_E8                  ;3        
     and     #$07                    ;2        
     bne     Lf6a2                   ;2/3      
-    ldy     ram_C1                  ;3        
+    ldy     swimming_X                  ;3        
     cpy     #$9f                    ;2        
     bcc     Lf69f                   ;2/3      
     ldy     #$ff                    ;2   =  16 *
 Lf69f
     iny                             ;2        
-    sty     ram_C1                  ;3   =   5
+    sty     swimming_X                  ;3   =   5
 Lf6a2
     lda     ram_D5                  ;3        
     ldy     ram_D4                  ;3        
@@ -1534,7 +1536,7 @@ Lf88c
     lda     ram_C5,x                ;4        
     and     #$07                    ;2        
     sta     ram_8F                  ;3        
-    lda     ram_C1,x                ;4        
+    lda     swimming_X,x                ;4        
     jsr     Lfb1b                   ;6        
     ora     ram_8F                  ;3        
     sta     ram_C5,x                ;4        
@@ -1785,9 +1787,9 @@ Lfa1f
     sta     TIM64T                  ;4        
     lda     ram_CB,x                ;4        
     sta     ram_8E                  ;3        
-    lda     ram_CC,x                ;4        
+    lda     timer_digit_1,x                ;4        
     sta     ram_8F                  ;3        
-    lda     ram_CD,x                ;4        
+    lda     timer_digit_2_3,x                ;4        
     sta     ram_90                  ;3        
     ldx     #$02                    ;2   =  80
 Lfa59
@@ -1825,11 +1827,11 @@ Lfa83
     
 Lfa89
     lda     #$50                    ;2        
-    sta     ram_B9                  ;3        
+    sta     bird_X                  ;3        
     lda     #$1e                    ;2        
-    sta     ram_BB                  ;3        
+    sta     bird_Y                  ;3        
     lda     #$3c                    ;2        
-    sta     ram_C1                  ;3        
+    sta     swimming_X                  ;3        
     ldx     #$0c                    ;2        
     lda     #$fd                    ;2        
     ldy     #$fe                    ;2   =  21
@@ -1863,7 +1865,7 @@ Lfac3
     dex                             ;2        
     bpl     Lfac3                   ;2/3      
     lda     #$10                    ;2        
-    sta     ram_CC                  ;3        
+    sta     timer_digit_1                  ;3        
     jsr     Lf8d6                   ;6        
     ldx     #$0c                    ;2        
     ldy     #$05                    ;2   =  23
