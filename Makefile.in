@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: CC0-1.0
 
 ASM = 
-BIN = immortal.bin PlayLilly.bin
+BIN = PlayLilly.bin LILLY.bin
 
 all: $(BIN)
 
-immortal.bin:
+LILLY.bin:
 	cd asm; \
-	$(ASM) immortal\ lilly.asm -f3 -oimmortal.bin
-	mv asm/immortal.bin immortal.bin
+	$(ASM) LILLY.asm -f3 -oLILLY.bin
+	mv asm/LILLY.bin LILLY.bin
 
 PlayLilly.bin:
 	cd asm; \
