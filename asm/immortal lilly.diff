@@ -1,6 +1,0 @@
-# diff:
-876,877c876
-<     ; ora     ram_C7                  ;3         *
-<     and     ram_C7                  ;3         *
----
->     ora     ram_C7                  ;3         *

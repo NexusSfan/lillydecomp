@@ -876,7 +876,7 @@ Lf446
     sta     ram_D2                  ;3   =   5 *
 set_player_dead
     lda     #$80                    ;2         *
-    ora     player_is_dead                  ;3         *
+    ora     player_is_dead          ; If you replace this with `and`, player will not die.
     sta     player_is_dead                  ;3   =   8 *
 Lf450
     bit     player_is_dead                  ;3        
