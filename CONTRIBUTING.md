@@ -8,12 +8,15 @@ Now you have the disassembled assembly.
 Use [Ghidra] with the [RetroGhidra] plugin (which supports Atari VCS) to decompile the Lilly Adventure ROM into psuedocode.
 
 ## Compiling
-We are using [cc65] to compile the code.
+We are using [dasm] to compile the code.
+
+## Documentation
+After documenting variables/functions to `asm/LILLY.asm` (main decomp file), run `python tools/doccheck.py asm/LILLY.asm` and put the output in your PR.
 
 ## License
 All contributions will be licensed under the Creative Commons [CC0] License.
 
-[cc65]: https://cc65.github.io
+[dasm]: https://dasm-assembler.github.io/
 [Ghidra]: https://ghidra-sre.org
 [RetroGhidra]: https://github.com/hippietrail/RetroGhidra
 [CC0]: https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt
