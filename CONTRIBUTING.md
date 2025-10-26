@@ -14,12 +14,11 @@ We are using [dasm] to compile the code.
 After documenting variables/functions to `asm/LILLY.asm` (main decomp file), run `python tools/doccheck.py asm/LILLY.asm` and put the output in your PR.
 
 ## License
-All contributions will be licensed under the Creative Commons [CC0] License.
+By contributing to this project, you agree to give me (NexusSfan) the permission to use your code in the Lilly Adventure Decomp project for any purpose, under any license.
 
 [dasm]: https://dasm-assembler.github.io/
 [Ghidra]: https://ghidra-sre.org
 [RetroGhidra]: https://github.com/hippietrail/RetroGhidra
-[CC0]: https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt
 
 <!--
 SPDX-License-Identifier: CC0-1.0
