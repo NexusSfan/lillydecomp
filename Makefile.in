@@ -2,18 +2,15 @@
 
 ASM = 
 BIN = PlayLilly.bin LILLY.bin
+SRC = 
 
 all: $(BIN)
 
 LILLY.bin:
-	cd asm; \
-	$(ASM) LILLY.asm -f3 -oLILLY.bin
-	mv asm/LILLY.bin LILLY.bin
+	$(ASM) $(SRC)/asm/LILLY.asm -f3 -oLILLY.bin
 
 PlayLilly.bin:
-	cd asm; \
-	$(ASM) PlayLilly.asm -f3 -oPlayLilly.bin
-	mv asm/PlayLilly.bin PlayLilly.bin
+	$(ASM) $(SRC)/asm/PlayLilly.asm -f3 -oPlayLilly.bin
 
 clean:
 	rm $(BIN)

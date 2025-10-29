@@ -2,6 +2,8 @@
 
 # SPDX-License-Identifier: CC0-1.0
 
+DIR=$( dirname -- "${BASH_SOURCE[0]}" )
+
 # Check for dasm
 echo -n "Checking for dasm... "
 
@@ -13,7 +15,8 @@ else
     echo "$DASM"
 fi
 
-cp Makefile.in Makefile
+cp $DIR/Makefile.in Makefile
 
 # replace variables
 sed -i "s|ASM = |ASM = $DASM|g" Makefile
+sed -i "s|SRC = |SRC = $DIR|g" Makefile

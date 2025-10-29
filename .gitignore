@@ -1,11 +1,5 @@
 # binaries
 *.bin
 *.o
-# included in cc65
-atari2600.h
-_tia.h
-_riot.h
-# compiling tools
+# compiling
 Makefile
-compile.sh
-play.sh
