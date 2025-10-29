@@ -178,8 +178,8 @@ ram_C8          = $c8
 ram_C9          = $c9
 ram_CA          = $ca
 ram_CB          = $cb
-timer_digit_1   = $cc
-timer_digit_2_3 = $cd
+timer_1st_half  = $cc
+timer_2nd_half  = $cd
 ram_CE          = $ce
 ;                 $cf  (i)
 ;                 $d0  (i)
@@ -190,8 +190,8 @@ ram_D4          = $d4
 ram_D5          = $d5
 ram_D6          = $d6
 ram_D7          = $d7
-ram_D8          = $d8
-ram_D9          = $d9
+aud0_music_ctrl = $d8
+aud1_music_ctrl = $d9
 ram_DA          = $da
 ram_DB          = $db
 ram_DC          = $dc
@@ -203,7 +203,7 @@ ram_E1          = $e1
 
 ram_E3          = $e3
 ram_E4          = $e4
-ram_E5          = $e5
+audc_ctrl       = $e5 ; ex. audc_ctrl = fa, then audc0/audc1 = a
 ram_E6          = $e6
 ram_E7          = $e7
 ram_E8          = $e8
@@ -847,15 +847,15 @@ Lf3e3
     bne     Lf42e                   ;2/3       *
     sed                             ;2         *
     sec                             ;2         *
-    lda     timer_digit_2_3                  ;3         *
-    sbc     #$01                    ;2         *
-    sta     timer_digit_2_3                  ;3         *
-    lda     timer_digit_1                  ;3         *
+    lda     timer_2nd_half                  ;3         *
+    sbc     #$01                    ;Subtract 1 from timer.
+    sta     timer_2nd_half                  ;3         *
+    lda     timer_1st_half                  ;3         *
     sbc     #$00                    ;2         *
-    sta     timer_digit_1                  ;3         *
+    sta     timer_1st_half                  ;3         *
     cld                             ;2         *
     bne     Lf42e                   ;2/3       *
-    lda     timer_digit_2_3                  ;3         *
+    lda     timer_2nd_half                  ;3         *
     beq     Lf446                   ;2/3 = 104 *
 Lf42e
     bit     CXPPMM                  ;3         *
@@ -908,9 +908,9 @@ Lf45d
     beq     Lf487                   ;2/3 =  45 *
 Lf47f
     lda     #$10                    ;2         *
-    sta     timer_digit_1                  ;3         *
+    sta     timer_1st_half                  ;3         *
     lda     #$00                    ;2         *
-    sta     timer_digit_2_3                  ;3   =  10 *
+    sta     timer_2nd_half                  ;3   =  10 *
 Lf487
     lda     ram_D4                  ;3         *
     lsr                             ;2         *
@@ -1048,9 +1048,9 @@ Lf560
     bpl     Lf560                   ;2/3       *
     cld                             ;2         *
     inx                             ;2         *
-    stx     timer_digit_2_3                  ;3         *
+    stx     timer_2nd_half                  ;3         *
     lda     #$10                    ;2         *
-    sta     timer_digit_1                  ;3         *
+    sta     timer_1st_half                  ;3         *
     lda     ram_D1                  ;3         *
     sed                             ;2         *
     clc                             ;2         *
@@ -1323,7 +1323,7 @@ Lf722
     ldy     Lf81b,x                 ;4   =  11
 Lf72a
     sty     ram_A5                  ;3        
-    lda     ram_D8                  ;3        
+    lda     aud0_music_ctrl                  ;3        
     bne     Lf796                   ;2/3      
     ldy     ram_DA                  ;3        
     dey                             ;2        
@@ -1339,7 +1339,7 @@ Lf73c
     and     #$03                    ;2        
     tax                             ;2        
     lda     Lfb95,x                 ;4        
-    sta     ram_E5                  ;3        
+    sta     audc_ctrl                  ;3        
     tya                             ;2        
     lsr                             ;2        
     lsr                             ;2        
@@ -1373,7 +1373,7 @@ Lf76c
     and     #$0f                    ;2        
     sta     ram_E4                  ;3        
     lda     #$00                    ;2        
-    sta     ram_D9                  ;3        
+    sta     aud1_music_ctrl                  ;3        
     sta     ram_DB                  ;3        
     dey                             ;2        
     jmp     Lf76c                   ;3   =  38
@@ -1383,18 +1383,18 @@ Lf788
     and     #$0f                    ;2        
     tax                             ;2        
     lda     Lfb9d,x                 ;4        
-    sta     ram_D8                  ;3        
+    sta     aud0_music_ctrl                  ;3        
     lda     #$0f                    ;2        
     sta     ram_DE                  ;3   =  19
 Lf796
-    dec     ram_D8                  ;5        
-    lda     ram_E5                  ;3        
+    dec     aud0_music_ctrl                  ;5        
+    lda     audc_ctrl                  ;3        
     sta     AUDC0                   ;3        
     ldy     ram_DA                  ;3        
     lda     (ram_E0),y              ;5        
     ldx     #$00                    ;2        
     jsr     Lfafd                   ;6        
-    lda     ram_D9                  ;3        
+    lda     aud1_music_ctrl                  ;3        
     bne     Lf7c7                   ;2/3      
     ldy     ram_DB                  ;3        
     dey                             ;2        
@@ -1409,14 +1409,14 @@ Lf7b6
     and     #$0f                    ;2        
     tax                             ;2        
     lda     Lfb9d,x                 ;4        
-    sta     ram_D9                  ;3        
+    sta     aud1_music_ctrl                  ;3        
     lda     #$0a                    ;2        
     sta     ram_DF                  ;3   =  25
 Lf7c7
-    dec     ram_D9                  ;5        
+    dec     aud1_music_ctrl                  ;5        
     lda     ram_D2                  ;3        
     bne     Lf7db                   ;2/3      
-    lda     ram_E5                  ;3        
+    lda     audc_ctrl                  ;3        
     sta     AUDC1                   ;3        
     ldy     ram_DB                  ;3        
     jsr     Lfade                   ;6        
@@ -1686,7 +1686,7 @@ Lf99d
     sta     ram_D7                  ;3        
     lda     #$00                    ;2        
     sta     ram_DA                  ;3        
-    sta     ram_D8                  ;3        
+    sta     aud0_music_ctrl                  ;3        
     rts                             ;6   =  17
     
 Lf9a6
@@ -1787,9 +1787,9 @@ Lfa1f
     sta     TIM64T                  ;4        
     lda     ram_CB,x                ;4        
     sta     ram_8E                  ;3        
-    lda     timer_digit_1,x                ;4        
+    lda     timer_1st_half,x                ;4        
     sta     ram_8F                  ;3        
-    lda     timer_digit_2_3,x                ;4        
+    lda     timer_2nd_half,x                ;4        
     sta     ram_90                  ;3        
     ldx     #$02                    ;2   =  80
 Lfa59
@@ -1864,8 +1864,8 @@ Lfac3
     sta     player_is_dead,x                ;4        
     dex                             ;2        
     bpl     Lfac3                   ;2/3      
-    lda     #$10                    ;2        
-    sta     timer_digit_1                  ;3        
+    lda     #$10                    ;Default value for timer first half
+    sta     timer_1st_half                  ;3        
     jsr     Lf8d6                   ;6        
     ldx     #$0c                    ;2        
     ldy     #$05                    ;2   =  23

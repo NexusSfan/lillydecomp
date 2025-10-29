@@ -21,8 +21,6 @@
 
     processor 6502
 
-; expirementing source!
-
 
 ;-----------------------------------------------------------
 ;      Color constants
@@ -160,28 +158,28 @@ ram_B3          = $b3
 ram_B5          = $b5
 ;                 $b6  (i)
 ram_B7          = $b7
-ram_B8          = $b8 ; DECOMP: Player X
-ram_B9          = $b9
+player_X        = $b8
+bird_X          = $b9
 ;                 $ba  (i)
-ram_BB          = $bb
+bird_Y          = $bb
 ;                 $bc  (i)
-ram_BD          = $bd ; DECOMP: Player Y
+player_Y        = $bd
 ram_BE          = $be
 ram_BF          = $bf
 ram_C0          = $c0
-ram_C1          = $c1
+swimming_X      = $c1
 ram_C2          = $c2
 ram_C3          = $c3
 ram_C4          = $c4
 ram_C5          = $c5
 ram_C6          = $c6
-ram_C7          = $c7
+player_is_dead  = $c7
 ram_C8          = $c8
 ram_C9          = $c9
 ram_CA          = $ca
 ram_CB          = $cb
-ram_CC          = $cc
-ram_CD          = $cd
+timer_1st_half  = $cc
+timer_2nd_half  = $cd
 ram_CE          = $ce
 ;                 $cf  (i)
 ;                 $d0  (i)
@@ -228,7 +226,10 @@ ram_EE          = $ee
 ;      User Defined Labels
 ;-----------------------------------------------------------
 
+; Ignore errors made by these.
+
 Start           = $f1dc
+set_player_dead = $f44a
 
 
 ;***********************************************************
@@ -394,7 +395,7 @@ Lf0dc
     sta     COLUP1                  ;3        
     lda     #$10                    ;2        
     sta     HMP1                    ;3        
-    iny                             ;2   =  73
+    dey                             ;2   =  73
 Lf11f
     sta     WSYNC                   ;3   =   3
 ;---------------------------------------
@@ -531,7 +532,7 @@ Lf200
     sta     HMOVE                   ;3   =   3
 Lf204
     lda     #$00                    ;2        
-    cpx     ram_BB                  ;3        
+    cpx     bird_Y                  ;3        
     bmi     Lf213                   ;2/3      
     ldy     ram_C0                  ;3        
     bmi     Lf213                   ;2/3      
@@ -541,7 +542,7 @@ Lf204
 Lf213
     sta     ram_8E                  ;3        
     lda     #$00                    ;2        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf224                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf224                   ;2/3      
@@ -561,7 +562,7 @@ Lf224
     cpx     #$28                    ;2        
     bne     Lf204                   ;2/3      
     lda     #$00                    ;2        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf247                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf247                   ;2/3      
@@ -587,7 +588,7 @@ Lf260
     dey                             ;2        
     bpl     Lf260                   ;2/3      
     sta.w   RESP1                   ;4        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf273                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf273                   ;2/3      
@@ -598,7 +599,7 @@ Lf273
     jmp     Lf2a5                   ;3   =   3
     
 Lf276
-    cpx     ram_BD                  ;3         *
+    cpx     player_Y                  ;3         *
     nop                             ;2   =   5 *
 Lf279
     asl     Lf000                   ;6         *
@@ -606,7 +607,7 @@ Lf279
     jmp     Lf29d                   ;3   =  15 *
     
 Lf282
-    cpx     ram_BD                  ;3         *
+    cpx     player_Y                  ;3         *
     nop                             ;2   =   5 *
 Lf285
     asl     Lf000                   ;6        
@@ -614,7 +615,7 @@ Lf285
     
 Lf28b
     lda     #$00                    ;2         *
-    cpx     ram_BD                  ;3         *
+    cpx     player_Y                  ;3         *
     bmi     Lf276                   ;2/3       *
     ldy     ram_BE                  ;3         *
     bmi     Lf279                   ;2/3       *
@@ -640,7 +641,7 @@ Lf2a5
     inx                             ;2        
     lda     #$00                    ;2        
     sta     ENABL                   ;3        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf2c4                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf2c4                   ;2/3      
@@ -670,7 +671,7 @@ Lf2d4
     dey                             ;2        
     sty     ram_8E                  ;3        
     lda     #$00                    ;2        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf282                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf285                   ;2/3      
@@ -703,7 +704,7 @@ Lf30f
     lda     (ram_A9),y              ;5        
     sta     PF2                     ;3        
     lda     #$00                    ;2        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf361                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf364                   ;2/3      
@@ -728,7 +729,7 @@ Lf34b
     dey                             ;2        
     bpl     Lf34b                   ;2/3      
     sta.w   RESP1                   ;4        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf35e                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf35e                   ;2/3      
@@ -739,14 +740,14 @@ Lf35e
     jmp     Lf390                   ;3   =   3
     
 Lf361
-    cpx     ram_BD                  ;3         *
+    cpx     player_Y                  ;3         *
     sec                             ;2   =   5 *
 Lf364
     asl     Lf000                   ;6        
     jmp     Lf332                   ;3   =   9
     
 Lf36a
-    cpx     ram_BD                  ;3         *
+    cpx     player_Y                  ;3         *
     nop                             ;2   =   5 *
 Lf36d
     asl     Lf000                   ;6         *
@@ -755,7 +756,7 @@ Lf36d
     
 Lf376
     lda     #$00                    ;2         *
-    cpx     ram_BD                  ;3         *
+    cpx     player_Y                  ;3         *
     bmi     Lf36a                   ;2/3       *
     ldy     ram_BE                  ;3         *
     bmi     Lf36d                   ;2/3       *
@@ -780,7 +781,7 @@ Lf390
     sta     COLUP0                  ;3        
     inx                             ;2        
     lda     #$00                    ;2        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf3ad                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf3ad                   ;2/3      
@@ -811,7 +812,7 @@ Lf3be
     iny                             ;2        
     sty     ram_8E                  ;3        
     lda     #$00                    ;2        
-    cpx     ram_BD                  ;3        
+    cpx     player_Y                  ;3        
     bmi     Lf3e3                   ;2/3      
     ldy     ram_BE                  ;3        
     bmi     Lf3e3                   ;2/3      
@@ -839,32 +840,32 @@ Lf3e3
     sta     TIM64T                  ;4        
     lda     ram_D1                  ;3        
     beq     Lf450                   ;2/3      
-    bit     ram_C7                  ;3         *
+    bit     player_is_dead                  ;3         *
     bmi     Lf450                   ;2/3       *
     lda     ram_E8                  ;3         *
     and     #$07                    ;2         *
     bne     Lf42e                   ;2/3       *
     sed                             ;2         *
     sec                             ;2         *
-    lda     ram_CD                  ;3         *
-    sbc     #$01                    ;2         *
-    sta     ram_CD                  ;3         *
-    lda     ram_CC                  ;3         *
+    lda     timer_2nd_half                  ;3         *
+    sbc     #$01                    ;Subtract 1 from timer.
+    sta     timer_2nd_half                  ;3         *
+    lda     timer_1st_half                  ;3         *
     sbc     #$00                    ;2         *
-    sta     ram_CC                  ;3         *
+    sta     timer_1st_half                  ;3         *
     cld                             ;2         *
     bne     Lf42e                   ;2/3       *
-    lda     ram_CD                  ;3         *
+    lda     timer_2nd_half                  ;3         *
     beq     Lf446                   ;2/3 = 104 *
 Lf42e
     bit     CXPPMM                  ;3         *
     bmi     Lf43a                   ;2/3       *
-    lda     ram_BD                  ;3         *
+    lda     player_Y                  ;3         *
     cmp     #$48                    ;2         *
     bcc     Lf450                   ;2/3       *
-    bcs     Lf44a                   ;2/3 =  14 *
+    bcs     set_player_dead                   ;2/3 =  14 *
 Lf43a
-    lda     ram_BD                  ;3         *
+    lda     player_Y                  ;3         *
     cmp     #$36                    ;2         *
     bcc     Lf446                   ;2/3       *
     lda     ram_A3                  ;3         *
@@ -873,27 +874,27 @@ Lf43a
 Lf446
     lda     #$0f                    ;2         *
     sta     ram_D2                  ;3   =   5 *
-Lf44a
+set_player_dead
     lda     #$80                    ;2         *
-    and     ram_C7                  ;3         *
-    sta     ram_C7                  ;3   =   8 *
+    ora     player_is_dead          ; If you replace this with `and`, player will not die.
+    sta     player_is_dead                  ;3   =   8 *
 Lf450
-    bit     ram_C7                  ;3        
+    bit     player_is_dead                  ;3        
     bvc     Lf457                   ;2/3      
     jmp     Lf4ed                   ;3   =   8 *
     
 Lf457
-    lda     ram_BD                  ;3        
+    lda     player_Y                  ;3        
     cmp     #$80                    ;2        
     bcc     Lf493                   ;2/3 =   7
 Lf45d
     lda     #$28                    ;2         *
-    sta     ram_BD                  ;3         *
+    sta     player_Y                  ;3         *
     lda     #$08                    ;2         *
-    sta     ram_B8                  ;3         *
+    sta     player_X                  ;3         *
     lda     #$7f                    ;2         *
-    and     ram_C7                  ;3         *
-    sta     ram_C7                  ;3         *
+    and     player_is_dead                  ;3         *
+    sta     player_is_dead                  ;3         *
     lda     ram_D1                  ;3         *
     beq     Lf487                   ;2/3       *
     bit     SWCHB                   ;4         *
@@ -907,9 +908,9 @@ Lf45d
     beq     Lf487                   ;2/3 =  45 *
 Lf47f
     lda     #$10                    ;2         *
-    sta     ram_CC                  ;3         *
+    sta     timer_1st_half                  ;3         *
     lda     #$00                    ;2         *
-    sta     ram_CD                  ;3   =  10 *
+    sta     timer_2nd_half                  ;3   =  10 *
 Lf487
     lda     ram_D4                  ;3         *
     lsr                             ;2         *
@@ -922,19 +923,19 @@ Lf490
 Lf493
     bit     CXP0FB                  ;3        
     bpl     Lf49d                   ;2/3      
-    lda     ram_BD                  ;3        
+    lda     player_Y                  ;3        
     cmp     #$29                    ;2        
     bcc     Lf4ab                   ;2/3 =  12
 Lf49d
-    bit     ram_C7                  ;3        
+    bit     player_is_dead                  ;3        
     bmi     Lf4e2                   ;2/3      
     bit     CXPPMM                  ;3        
     bpl     Lf4e2                   ;2/3      
-    lda     ram_BD                  ;3         *
+    lda     player_Y                  ;3         *
     cmp     #$36                    ;2         *
     bcc     Lf4e2                   ;2/3 =  17 *
 Lf4ab
-    bit     ram_C7                  ;3        
+    bit     player_is_dead                  ;3        
     bpl     Lf4b5                   ;2/3      
     lda     ram_D2                  ;3         *
     bne     Lf4ea                   ;2/3       *
@@ -945,22 +946,22 @@ Lf4b5
     bit     INPT4                   ;3         *
     bmi     Lf4d6                   ;2/3       *
     lda     #$20                    ;2         *
-    bit     ram_C7                  ;3         *
+    bit     player_is_dead                  ;3         *
     bne     Lf4ea                   ;2/3       *
     lda     #$60                    ;2         *
-    and     ram_C7                  ;3         *
-    sta     ram_C7                  ;3         *
-    lda     ram_BD                  ;3         *
+    ora     player_is_dead                  ;3         *
+    sta     player_is_dead                  ;3         *
+    lda     player_Y                  ;3         *
     sec                             ;2         *
     sbc     #$04                    ;2         *
-    sta     ram_BD                  ;3         *
+    sta     player_Y                  ;3         *
     lda     #$08                    ;2         *
     sta     ram_D2                  ;3         *
     bne     Lf4ea                   ;2/3 =  42 *
 Lf4d6
     lda     #$df                    ;2         *
-    and     ram_C7                  ;3         *
-    sta     ram_C7                  ;3         *
+    and     player_is_dead                  ;3         *
+    sta     player_is_dead                  ;3         *
     lda     #$00                    ;2         *
     sta     ram_C8                  ;3         *
     beq     Lf4ea                   ;2/3 =  15 *
@@ -968,7 +969,7 @@ Lf4e2
     lda     ram_E8                  ;3        
     and     #$01                    ;2        
     bne     Lf4ea                   ;2/3      
-    inc     ram_BD                  ;5   =  12
+    inc     player_Y                  ;5   =  12
 Lf4ea
     jmp     Lf51d                   ;3   =   3
     
@@ -983,15 +984,14 @@ Lf4ed
     lda     #$01                    ;2         *
     and     ram_E8                  ;3         *
     bne     Lf51d                   ;2/3       *
-    dec     ram_BD                  ;5         *
-    dec     ram_BD                  ;5         *
+    dec     player_Y                  ;5         *
     inc     ram_C8                  ;5         *
     bne     Lf51d                   ;2/3 =  35 *
 Lf507
     sec                             ;2         *
-    lda     ram_BD                  ;3         *
+    lda     player_Y                  ;3         *
     sbc     #$04                    ;2         *
-    sta     ram_BD                  ;3         *
+    sta     player_Y                  ;3         *
     clc                             ;2         *
     lda     ram_C8                  ;3         *
     adc     #$04                    ;2         *
@@ -999,18 +999,18 @@ Lf507
     bne     Lf51d                   ;2/3 =  22 *
 Lf517
     lda     #$bf                    ;2         *
-    and     ram_C7                  ;3         *
-    sta     ram_C7                  ;3   =   8 *
+    and     player_is_dead                  ;3         *
+    sta     player_is_dead                  ;3   =   8 *
 Lf51d
     lda     ram_D1                  ;3        
     beq     Lf590                   ;2/3      
-    lda     ram_B8                  ;3         *
+    lda     player_X                  ;3         *
     bit     CXP0FB                  ;3         *
     bpl     Lf52f                   ;2/3       *
-    lda     ram_BD                  ;3         *
+    lda     player_Y                  ;3         *
     cmp     #$29                    ;2         *
     bcs     Lf590                   ;2/3       *
-    lda     ram_B8                  ;3   =  23 *
+    lda     player_X                  ;3   =  23 *
 Lf52f
     bit     SWCHA                   ;4         *
     bpl     Lf546                   ;2/3       *
@@ -1020,23 +1020,23 @@ Lf52f
     lda     #$03                    ;2         *
     and     ram_E8                  ;3         *
     bne     Lf542                   ;2/3       *
+    dec     player_X                  ;5   =  24 *
 Lf542
     lda     #$08                    ;2         *
     bne     Lf58e                   ;2/3 =   4 *
-Lf546
-    bit     ram_C7                  ;3         *
+Lf546 ; DECOMP: Check if level is completed?
+    bit     player_is_dead                  ;3         *
     bmi     Lf590                   ;2/3       *
     cmp     #$9f                    ;2         *
     bcs     Lf558                   ;2/3       *
     lda     #$03                    ;2         *
     and     ram_E8                  ;3         *
     bne     Lf58c                   ;2/3       *
-    inc     ram_B8                  ;5         *
-    inc     ram_B8                  ;5         *
+    inc     player_X                  ;5         *
     bne     Lf590                   ;2/3 =  23 *
 Lf558
     lda     #$08                    ;2         *
-    sta     ram_B8                  ;3         *
+    sta     player_X                  ;3         *
     ldx     #$02                    ;2         *
     clc                             ;2         *
     sed                             ;2   =  11 *
@@ -1048,9 +1048,9 @@ Lf560
     bpl     Lf560                   ;2/3       *
     cld                             ;2         *
     inx                             ;2         *
-    stx     ram_CD                  ;3         *
+    stx     timer_2nd_half                  ;3         *
     lda     #$10                    ;2         *
-    sta     ram_CC                  ;3         *
+    sta     timer_1st_half                  ;3         *
     lda     ram_D1                  ;3         *
     sed                             ;2         *
     clc                             ;2         *
@@ -1201,7 +1201,7 @@ Lf64a
     ldy     ram_C9,x                ;4        
     lda     Lf8b6,y                 ;4        
     sta     ram_8E                  ;3        
-    ldy     ram_B9,x                ;4        
+    ldy     bird_X,x                ;4        
     cpy     ram_8E                  ;3        
     bcs     Lf666                   ;2/3      
     cpy     #$88                    ;2        
@@ -1213,7 +1213,7 @@ Lf666
     bcc     Lf66b                   ;2/3      
     dey                             ;2   =   6
 Lf66b
-    sty     ram_B9,x                ;4        
+    sty     bird_X,x                ;4        
     lda     Lf8b2,x                 ;4        
     sta     ram_8F                  ;3        
     lda     Lf8b4,x                 ;4        
@@ -1221,7 +1221,7 @@ Lf66b
     lda     ram_8E                  ;3        
     and     #$1f                    ;2        
     sta     ram_8E                  ;3        
-    ldy     ram_BB,x                ;4        
+    ldy     bird_Y,x                ;4        
     cpy     ram_8E                  ;3        
     bcs     Lf68a                   ;2/3      
     cpy     ram_8F                  ;3        
@@ -1233,18 +1233,18 @@ Lf68a
     bcc     Lf68f                   ;2/3      
     dey                             ;2   =   7
 Lf68f
-    sty     ram_BB,x                ;4   =   4
+    sty     bird_Y,x                ;4   =   4
 Lf691
     lda     ram_E8                  ;3        
     and     #$07                    ;2        
     bne     Lf6a2                   ;2/3      
-    ldy     ram_C1                  ;3        
+    ldy     swimming_X                  ;3        
     cpy     #$9f                    ;2        
     bcc     Lf69f                   ;2/3      
     ldy     #$ff                    ;2   =  16 *
 Lf69f
     iny                             ;2        
-    sty     ram_C1                  ;3   =   5
+    sty     swimming_X                  ;3   =   5
 Lf6a2
     lda     ram_D5                  ;3        
     ldy     ram_D4                  ;3        
@@ -1310,14 +1310,14 @@ Lf6ea
     sta     ram_ED                  ;3   =  36 *
 Lf714
     ldy     #$ea                    ;2        
-    bit     ram_C7                  ;3        
+    bit     player_is_dead                  ;3        
     bmi     Lf72a                   ;2/3      
     bit     CXPPMM                  ;3        
     bmi     Lf722                   ;2/3      
     bit     CXP0FB                  ;3        
     bpl     Lf72a                   ;2/3 =  17
 Lf722
-    lda     ram_B8                  ;3        
+    lda     player_X                  ;3        
     and     #$01                    ;2        
     tax                             ;2        
     ldy     Lf81b,x                 ;4   =  11
@@ -1425,7 +1425,7 @@ Lf7c7
 Lf7db
     ldx     ram_D2                  ;3        
     beq     Lf7fc                   ;2/3      
-    bit     ram_C7                  ;3         *
+    bit     player_is_dead                  ;3         *
     bpl     Lf7e9                   ;2/3       *
     ldx     #$03                    ;2         *
     ldy     #$1f                    ;2         *
@@ -1442,7 +1442,7 @@ Lf7f4
     lda     #$00                    ;2         *
     beq     Lf812                   ;2/3!=  11 *
 Lf7fc
-    lda     ram_BD                  ;3        
+    lda     player_Y                  ;3        
     sec                             ;2        
     sbc     #$4c                    ;2        
     bcc     Lf818                   ;2/3      
@@ -1536,9 +1536,9 @@ Lf88c
     lda     ram_C5,x                ;4        
     and     #$07                    ;2        
     sta     ram_8F                  ;3        
-    lda     ram_C1,x                ;4        
+    lda     swimming_X,x                ;4        
     jsr     Lfb1b                   ;6        
-    and     ram_8F                  ;3        
+    ora     ram_8F                  ;3        
     sta     ram_C5,x                ;4        
     dey                             ;2        
     dey                             ;2        
@@ -1730,7 +1730,7 @@ Lf9e8
     lda     #$01                    ;2         *
     bne     Lf9e2                   ;2/3 =   6 *
 Lf9ee
-    inc     ram_EB,x                ;6         *
+    dec     ram_EB,x                ;6         *
     rts                             ;6   =  12 *
     
 Lf9f1
@@ -1787,9 +1787,9 @@ Lfa1f
     sta     TIM64T                  ;4        
     lda     ram_CB,x                ;4        
     sta     ram_8E                  ;3        
-    lda     ram_CC,x                ;4        
+    lda     timer_1st_half,x                ;4        
     sta     ram_8F                  ;3        
-    lda     ram_CD,x                ;4        
+    lda     timer_2nd_half,x                ;4        
     sta     ram_90                  ;3        
     ldx     #$02                    ;2   =  80
 Lfa59
@@ -1827,11 +1827,11 @@ Lfa83
     
 Lfa89
     lda     #$50                    ;2        
-    sta     ram_B9                  ;3        
+    sta     bird_X                  ;3        
     lda     #$1e                    ;2        
-    sta     ram_BB                  ;3        
+    sta     bird_Y                  ;3        
     lda     #$3c                    ;2        
-    sta     ram_C1                  ;3        
+    sta     swimming_X                  ;3        
     ldx     #$0c                    ;2        
     lda     #$fd                    ;2        
     ldy     #$fe                    ;2   =  21
@@ -1855,17 +1855,17 @@ Lfaa9
     sta     ram_B7                  ;3   =  21
 Lfab7
     lda     #$08                    ;2        
-    sta     ram_B8                  ;3        
+    sta     player_X                  ;3        
     lda     #$24                    ;2        
-    ; sta     ram_BD                  ;3        
+    sta     player_Y                  ;3        
     lda     #$00                    ;2        
     ldx     #$16                    ;2   =  14
 Lfac3
-    sta     ram_C7,x                ;4        
+    sta     player_is_dead,x                ;4        
     dex                             ;2        
     bpl     Lfac3                   ;2/3      
-    lda     #$10                    ;2        
-    sta     ram_CC                  ;3        
+    lda     #$10                    ;Default value for timer first half
+    sta     timer_1st_half                  ;3        
     jsr     Lf8d6                   ;6        
     ldx     #$0c                    ;2        
     ldy     #$05                    ;2   =  23
@@ -2086,7 +2086,7 @@ Lfbcf
     .byte   $a8,$68,$60,$84,$aa,$85,$ab,$48 ; $fcf7 (*)
     .byte   $98                             ; $fcff (*)
     
-Lfd00
+Lfd00 ; DECOMP: Lilly color pallete.
     .byte   ORANGE|$c                       ; $fd00 (C)
     .byte   VIOLET|$8                       ; $fd01 (C)
     .byte   VIOLET|$8                       ; $fd02 (C)
