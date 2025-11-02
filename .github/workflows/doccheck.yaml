@@ -1,9 +1,10 @@
-name: Documentation Check
+name: doccheck
 on:
   push:
 
 jobs:
   doccheck:
+    name: Documentation Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -12,12 +13,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-        # Capture output from doccheck and comment on issue
       - name: Check documentation
         uses: mathiasvr/command-output@6309e0ee6ed594fd7f382bd826e138e0ba04dd63
         with:
           run: python3 tools/doccheck.py asm/LILLY.asm
         id: doccheck
-      - run: gh issue comment https://github.com/NexusSfan/lillydecomp/issues/2 --body "${{ steps.doccheck.outputs.stdout }}" --edit-last
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Comment on issue
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          comment-id: 3478184596
+          body: ${{ steps.doccheck.outputs.stdout }}
+          token: ${{ secrets.GITHUB_TOKEN }}
