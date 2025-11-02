@@ -159,16 +159,16 @@ ram_B5          = $b5
 ;                 $b6  (i)
 ram_B7          = $b7
 player_X        = $b8
-bird_X          = $b9
+hawk_X          = $b9
 ;                 $ba  (i)
-bird_Y          = $bb
+hawk_Y          = $bb
 ;                 $bc  (i)
 player_Y        = $bd
 ram_BE          = $be
 ram_BF          = $bf
 ram_C0          = $c0
 swimming_X      = $c1
-ram_C2          = $c2
+ghost_X          = $c2
 ram_C3          = $c3
 ram_C4          = $c4
 ram_C5          = $c5
@@ -190,8 +190,8 @@ ram_D4          = $d4
 ram_D5          = $d5
 ram_D6          = $d6
 ram_D7          = $d7
-ram_D8          = $d8
-ram_D9          = $d9
+aud0_music_ctrl = $d8
+aud1_music_ctrl = $d9
 ram_DA          = $da
 ram_DB          = $db
 ram_DC          = $dc
@@ -203,7 +203,7 @@ ram_E1          = $e1
 
 ram_E3          = $e3
 ram_E4          = $e4
-ram_E5          = $e5
+audc_ctrl       = $e5 ; ex. audc_ctrl = fa, then audc0/audc1 = a
 ram_E6          = $e6
 ram_E7          = $e7
 ram_E8          = $e8
@@ -532,7 +532,7 @@ Lf200
     sta     HMOVE                   ;3   =   3
 Lf204
     lda     #$00                    ;2        
-    cpx     bird_Y                  ;3        
+    cpx     hawk_Y                  ;3        
     bmi     Lf213                   ;2/3      
     ldy     ram_C0                  ;3        
     bmi     Lf213                   ;2/3      
@@ -916,7 +916,7 @@ Lf487
     lsr                             ;2         *
     bcc     Lf490                   ;2/3       *
     lda     #$50                    ;2         *
-    sta     ram_C2                  ;3   =  12 *
+    sta     ghost_X                  ;3   =  12 *
 Lf490
     jmp     Lf4b5                   ;3   =   3 *
     
@@ -1137,13 +1137,13 @@ Lf5ea
     lda     ram_E8                  ;3         *
     and     #$03                    ;2         *
     bne     Lf606                   ;2/3!      *
-    lda     ram_C2                  ;3         *
+    lda     ghost_X                  ;3         *
     sec                             ;2         *
     sbc     #$01                    ;2         *
     bcs     Lf604                   ;2/3       *
     lda     #$9f                    ;2   =  34 *
-Lf604
-    sta     ram_C2                  ;3   =   3 *
+Lf604 ; Stores data into the ghost X position. If you override this, the ghosts will not move.
+    sta     ghost_X                  ;3   =   3 *
 Lf606
     jmp     Lf62b                   ;3   =   3 *
     
@@ -1165,7 +1165,7 @@ Lf617
 Lf621
     lda     #$6c                    ;2   =   2 *
 Lf623
-    sta     ram_C2                  ;3        
+    sta     ghost_X                  ;3        
     bne     Lf62b                   ;2/3 =   5
 Lf627
     lda     #$60                    ;2         *
@@ -1201,7 +1201,7 @@ Lf64a
     ldy     ram_C9,x                ;4        
     lda     Lf8b6,y                 ;4        
     sta     ram_8E                  ;3        
-    ldy     bird_X,x                ;4        
+    ldy     hawk_X,x                ;4        
     cpy     ram_8E                  ;3        
     bcs     Lf666                   ;2/3      
     cpy     #$88                    ;2        
@@ -1213,7 +1213,7 @@ Lf666
     bcc     Lf66b                   ;2/3      
     dey                             ;2   =   6
 Lf66b
-    sty     bird_X,x                ;4        
+    sty     hawk_X,x                ;4        
     lda     Lf8b2,x                 ;4        
     sta     ram_8F                  ;3        
     lda     Lf8b4,x                 ;4        
@@ -1221,7 +1221,7 @@ Lf66b
     lda     ram_8E                  ;3        
     and     #$1f                    ;2        
     sta     ram_8E                  ;3        
-    ldy     bird_Y,x                ;4        
+    ldy     hawk_Y,x                ;4        
     cpy     ram_8E                  ;3        
     bcs     Lf68a                   ;2/3      
     cpy     ram_8F                  ;3        
@@ -1233,7 +1233,7 @@ Lf68a
     bcc     Lf68f                   ;2/3      
     dey                             ;2   =   7
 Lf68f
-    sty     bird_Y,x                ;4   =   4
+    sty     hawk_Y,x                ;4   =   4
 Lf691
     lda     ram_E8                  ;3        
     and     #$07                    ;2        
@@ -1323,7 +1323,7 @@ Lf722
     ldy     Lf81b,x                 ;4   =  11
 Lf72a
     sty     ram_A5                  ;3        
-    lda     ram_D8                  ;3        
+    lda     aud0_music_ctrl                  ;3        
     bne     Lf796                   ;2/3      
     ldy     ram_DA                  ;3        
     dey                             ;2        
@@ -1339,7 +1339,7 @@ Lf73c
     and     #$03                    ;2        
     tax                             ;2        
     lda     Lfb95,x                 ;4        
-    sta     ram_E5                  ;3        
+    sta     audc_ctrl                  ;3        
     tya                             ;2        
     lsr                             ;2        
     lsr                             ;2        
@@ -1373,7 +1373,7 @@ Lf76c
     and     #$0f                    ;2        
     sta     ram_E4                  ;3        
     lda     #$00                    ;2        
-    sta     ram_D9                  ;3        
+    sta     aud1_music_ctrl                  ;3        
     sta     ram_DB                  ;3        
     dey                             ;2        
     jmp     Lf76c                   ;3   =  38
@@ -1383,18 +1383,18 @@ Lf788
     and     #$0f                    ;2        
     tax                             ;2        
     lda     Lfb9d,x                 ;4        
-    sta     ram_D8                  ;3        
+    sta     aud0_music_ctrl                  ;3        
     lda     #$0f                    ;2        
     sta     ram_DE                  ;3   =  19
 Lf796
-    dec     ram_D8                  ;5        
-    lda     ram_E5                  ;3        
+    dec     aud0_music_ctrl                  ;5        
+    lda     audc_ctrl                  ;3        
     sta     AUDC0                   ;3        
     ldy     ram_DA                  ;3        
     lda     (ram_E0),y              ;5        
     ldx     #$00                    ;2        
     jsr     Lfafd                   ;6        
-    lda     ram_D9                  ;3        
+    lda     aud1_music_ctrl                  ;3        
     bne     Lf7c7                   ;2/3      
     ldy     ram_DB                  ;3        
     dey                             ;2        
@@ -1409,14 +1409,14 @@ Lf7b6
     and     #$0f                    ;2        
     tax                             ;2        
     lda     Lfb9d,x                 ;4        
-    sta     ram_D9                  ;3        
+    sta     aud1_music_ctrl                  ;3        
     lda     #$0a                    ;2        
     sta     ram_DF                  ;3   =  25
 Lf7c7
-    dec     ram_D9                  ;5        
+    dec     aud1_music_ctrl                  ;5        
     lda     ram_D2                  ;3        
     bne     Lf7db                   ;2/3      
-    lda     ram_E5                  ;3        
+    lda     audc_ctrl                  ;3        
     sta     AUDC1                   ;3        
     ldy     ram_DB                  ;3        
     jsr     Lfade                   ;6        
@@ -1593,7 +1593,7 @@ Lf8d6
     lsr                             ;2        
     bcc     Lf8fb                   ;2/3      
     lda     #$50                    ;2         *
-    sta     ram_C2                  ;3   =  55 *
+    sta     ghost_X                  ;3   =  55 *
 Lf8fb
     lda     ram_DC                  ;3        
     jsr     Lfef8                   ;6        
@@ -1686,7 +1686,7 @@ Lf99d
     sta     ram_D7                  ;3        
     lda     #$00                    ;2        
     sta     ram_DA                  ;3        
-    sta     ram_D8                  ;3        
+    sta     aud0_music_ctrl                  ;3        
     rts                             ;6   =  17
     
 Lf9a6
@@ -1827,9 +1827,9 @@ Lfa83
     
 Lfa89
     lda     #$50                    ;2        
-    sta     bird_X                  ;3        
+    sta     hawk_X                  ;3        
     lda     #$1e                    ;2        
-    sta     bird_Y                  ;3        
+    sta     hawk_Y                  ;3        
     lda     #$3c                    ;2        
     sta     swimming_X                  ;3        
     ldx     #$0c                    ;2        

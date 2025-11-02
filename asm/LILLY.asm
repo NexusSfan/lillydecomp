@@ -159,16 +159,16 @@ ram_B5          = $b5
 ;                 $b6  (i)
 ram_B7          = $b7
 player_X        = $b8
-bird_X          = $b9
+hawk_X          = $b9
 ;                 $ba  (i)
-bird_Y          = $bb
+hawk_Y          = $bb
 ;                 $bc  (i)
 player_Y        = $bd
 ram_BE          = $be
 ram_BF          = $bf
 ram_C0          = $c0
 swimming_X      = $c1
-ram_C2          = $c2
+ghost_X          = $c2
 ram_C3          = $c3
 ram_C4          = $c4
 ram_C5          = $c5
@@ -532,7 +532,7 @@ Lf200
     sta     HMOVE                   ;3   =   3
 Lf204
     lda     #$00                    ;2        
-    cpx     bird_Y                  ;3        
+    cpx     hawk_Y                  ;3        
     bmi     Lf213                   ;2/3      
     ldy     ram_C0                  ;3        
     bmi     Lf213                   ;2/3      
@@ -916,7 +916,7 @@ Lf487
     lsr                             ;2         *
     bcc     Lf490                   ;2/3       *
     lda     #$50                    ;2         *
-    sta     ram_C2                  ;3   =  12 *
+    sta     ghost_X                  ;3   =  12 *
 Lf490
     jmp     Lf4b5                   ;3   =   3 *
     
@@ -1137,13 +1137,13 @@ Lf5ea
     lda     ram_E8                  ;3         *
     and     #$03                    ;2         *
     bne     Lf606                   ;2/3!      *
-    lda     ram_C2                  ;3         *
+    lda     ghost_X                  ;3         *
     sec                             ;2         *
     sbc     #$01                    ;2         *
     bcs     Lf604                   ;2/3       *
     lda     #$9f                    ;2   =  34 *
-Lf604
-    sta     ram_C2                  ;3   =   3 *
+Lf604 ; Stores data into the ghost X position. If you override this, the ghosts will not move.
+    sta     ghost_X                  ;3   =   3 *
 Lf606
     jmp     Lf62b                   ;3   =   3 *
     
@@ -1165,7 +1165,7 @@ Lf617
 Lf621
     lda     #$6c                    ;2   =   2 *
 Lf623
-    sta     ram_C2                  ;3        
+    sta     ghost_X                  ;3        
     bne     Lf62b                   ;2/3 =   5
 Lf627
     lda     #$60                    ;2         *
@@ -1201,7 +1201,7 @@ Lf64a
     ldy     ram_C9,x                ;4        
     lda     Lf8b6,y                 ;4        
     sta     ram_8E                  ;3        
-    ldy     bird_X,x                ;4        
+    ldy     hawk_X,x                ;4        
     cpy     ram_8E                  ;3        
     bcs     Lf666                   ;2/3      
     cpy     #$88                    ;2        
@@ -1213,7 +1213,7 @@ Lf666
     bcc     Lf66b                   ;2/3      
     dey                             ;2   =   6
 Lf66b
-    sty     bird_X,x                ;4        
+    sty     hawk_X,x                ;4        
     lda     Lf8b2,x                 ;4        
     sta     ram_8F                  ;3        
     lda     Lf8b4,x                 ;4        
@@ -1221,7 +1221,7 @@ Lf66b
     lda     ram_8E                  ;3        
     and     #$1f                    ;2        
     sta     ram_8E                  ;3        
-    ldy     bird_Y,x                ;4        
+    ldy     hawk_Y,x                ;4        
     cpy     ram_8E                  ;3        
     bcs     Lf68a                   ;2/3      
     cpy     ram_8F                  ;3        
@@ -1233,7 +1233,7 @@ Lf68a
     bcc     Lf68f                   ;2/3      
     dey                             ;2   =   7
 Lf68f
-    sty     bird_Y,x                ;4   =   4
+    sty     hawk_Y,x                ;4   =   4
 Lf691
     lda     ram_E8                  ;3        
     and     #$07                    ;2        
@@ -1593,7 +1593,7 @@ Lf8d6
     lsr                             ;2        
     bcc     Lf8fb                   ;2/3      
     lda     #$50                    ;2         *
-    sta     ram_C2                  ;3   =  55 *
+    sta     ghost_X                  ;3   =  55 *
 Lf8fb
     lda     ram_DC                  ;3        
     jsr     Lfef8                   ;6        
@@ -1827,9 +1827,9 @@ Lfa83
     
 Lfa89
     lda     #$50                    ;2        
-    sta     bird_X                  ;3        
+    sta     hawk_X                  ;3        
     lda     #$1e                    ;2        
-    sta     bird_Y                  ;3        
+    sta     hawk_Y                  ;3        
     lda     #$3c                    ;2        
     sta     swimming_X                  ;3        
     ldx     #$0c                    ;2        
