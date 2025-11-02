@@ -18,10 +18,17 @@ jobs:
         with:
           run: python3 tools/doccheck.py asm/LILLY.asm
         id: doccheck
+      - name: Unlock issue
+        run: gh issue unlock https://github.com/NexusSfan/lillydecomp/issues/2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Comment on issue
         uses: peter-evans/create-or-update-comment@v5
         with:
           comment-id: 3478184596
           body: ${{ steps.doccheck.outputs.stdout }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Lock issue
+        run: gh issue lock https://github.com/NexusSfan/lillydecomp/issues/2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
