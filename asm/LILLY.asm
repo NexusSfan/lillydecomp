@@ -1,10 +1,5 @@
-; Disassembly of LILLY.bin
-; Disassembled Thu Jun 19 20:32:06 2025
-; Using Stella 7.0
-;
-; ROM properties name : Wilma Wanderer (1983) (ITT Family Games) (PAL)
-; ROM properties MD5  : ab10f2974dee73dab4579f0cab35fca6
-; Bankswitch type     : 4K* (4K) 
+; SPDX-License-Identifier: CC0-1.0
+; Disassembly of LILLY.bin, with comments.
 ;
 ; Legend: *  = CODE not yet run (tentative code)
 ;         D  = DATA directive (referenced in some way)
@@ -230,6 +225,7 @@ ram_EE          = $ee
 
 Start           = $f1dc
 set_player_dead = $f44a
+store_ghost_X   = $f604
 
 
 ;***********************************************************
@@ -1140,9 +1136,9 @@ Lf5ea
     lda     ghost_X                  ;3         *
     sec                             ;2         *
     sbc     #$01                    ;2         *
-    bcs     Lf604                   ;2/3       *
+    bcs     store_ghost_X                   ;2/3       *
     lda     #$9f                    ;2   =  34 *
-Lf604 ; Stores data into the ghost X position. If you override this, the ghosts will not move.
+store_ghost_X
     sta     ghost_X                  ;3   =   3 *
 Lf606
     jmp     Lf62b                   ;3   =   3 *
