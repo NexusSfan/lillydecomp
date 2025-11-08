@@ -7,10 +7,10 @@ SRC =
 all: $(BIN)
 
 LILLY.bin:
-	$(ASM) $(SRC)/asm/LILLY.asm -f3 -oLILLY.bin
+	$(ASM) $(SRC)/asm/LILLY.asm -f3 -oLILLY.bin -sLILLY.sym
 
 PlayLilly.bin:
-	$(ASM) $(SRC)/asm/PlayLilly.asm -f3 -oPlayLilly.bin
+	$(ASM) $(SRC)/asm/PlayLilly.asm -f3 -oPlayLilly.bin -sPlayLilly.sym
 
 clean:
 	rm $(BIN)

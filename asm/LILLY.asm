@@ -148,7 +148,7 @@ ram_AF          = $af
 ;                 $b0  (i)
 ram_B1          = $b1
 ;                 $b2  (i)
-ram_B3          = $b3
+ram_B3          = $b3 ; DECOMP: Controls player drawing, in some way. Find out more later
 ;                 $b4  (i)
 ram_B5          = $b5
 ;                 $b6  (i)
@@ -163,7 +163,7 @@ ram_BE          = $be
 ram_BF          = $bf
 ram_C0          = $c0
 swimming_X      = $c1
-ghost_X          = $c2
+ghost_X         = $c2
 ram_C3          = $c3
 ram_C4          = $c4
 ram_C5          = $c5
@@ -198,7 +198,7 @@ ram_E1          = $e1
 
 ram_E3          = $e3
 ram_E4          = $e4
-audc_ctrl       = $e5 ; ex. audc_ctrl = fa, then audc0/audc1 = a
+audc_ctrl       = $e5 ; DECOMP: ex. audc_ctrl = fa, then audc0/audc1 = a
 ram_E6          = $e6
 ram_E7          = $e7
 ram_E8          = $e8
@@ -871,8 +871,9 @@ Lf446
     lda     #$0f                    ;2         *
     sta     ram_D2                  ;3   =   5 *
 set_player_dead
+    ; This `ora` statement will always be true because `#$80` is always true.
     lda     #$80                    ;2         *
-    ora     player_is_dead          ; If you replace this with `and`, player will not die.
+    ora     player_is_dead          ; DECOMP: If you replace this with `and`, player will not die.
     sta     player_is_dead                  ;3   =   8 *
 Lf450
     bit     player_is_dead                  ;3        
@@ -1461,7 +1462,7 @@ Lf818
 Lf81b
     .byte   $c3                             ; $f81b (D)
     .byte   $d3                             ; $f81c (*)
-Lf81d
+Lf81d ; DECOMP: Related to Jump sound.
     .byte   $11,$11,$11,$0e,$0e,$13,$17,$1d ; $f81d (*)
     .byte   $1d                             ; $f825 (*)
     

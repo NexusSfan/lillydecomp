@@ -1,10 +1,5 @@
-; Disassembly of LILLY.bin
-; Disassembled Thu Jun 19 20:32:06 2025
-; Using Stella 7.0
-;
-; ROM properties name : Wilma Wanderer (1983) (ITT Family Games) (PAL)
-; ROM properties MD5  : ab10f2974dee73dab4579f0cab35fca6
-; Bankswitch type     : 4K* (4K) 
+; SPDX-License-Identifier: CC0-1.0
+; Disassembly of LILLY.bin, with comments.
 ;
 ; Legend: *  = CODE not yet run (tentative code)
 ;         D  = DATA directive (referenced in some way)
@@ -230,6 +225,7 @@ ram_EE          = $ee
 
 Start           = $f1dc
 set_player_dead = $f44a
+store_ghost_X   = $f604
 
 
 ;***********************************************************
@@ -875,8 +871,9 @@ Lf446
     lda     #$0f                    ;2         *
     sta     ram_D2                  ;3   =   5 *
 set_player_dead
+    ; This `ora` statement will always be true because `#$80` is always true.
     lda     #$80                    ;2         *
-    ora     player_is_dead          ; If you replace this with `and`, player will not die.
+    and     player_is_dead          ; DECOMP: If you replace this with `and`, player will not die.
     sta     player_is_dead                  ;3   =   8 *
 Lf450
     bit     player_is_dead                  ;3        
@@ -1140,9 +1137,9 @@ Lf5ea
     lda     ghost_X                  ;3         *
     sec                             ;2         *
     sbc     #$01                    ;2         *
-    bcs     Lf604                   ;2/3       *
+    bcs     store_ghost_X                   ;2/3       *
     lda     #$9f                    ;2   =  34 *
-Lf604 ; Stores data into the ghost X position. If you override this, the ghosts will not move.
+store_ghost_X
     sta     ghost_X                  ;3   =   3 *
 Lf606
     jmp     Lf62b                   ;3   =   3 *
@@ -1431,7 +1428,7 @@ Lf7db
     ldy     #$1f                    ;2         *
     bne     Lf7f4                   ;2/3 =  16 *
 Lf7e9
-    ldy     Lf81d,x                 ;4         *
+    ldy     Lf9b6,x                 ;4         *
     ldx     #$04                    ;2         *
     lda     ram_E8                  ;3         *
     and     #$03                    ;2         *
@@ -1465,7 +1462,7 @@ Lf818
 Lf81b
     .byte   $c3                             ; $f81b (D)
     .byte   $d3                             ; $f81c (*)
-Lf81d
+Lf81d ; DECOMP: Maybe jump SFX?
     .byte   $11,$11,$11,$0e,$0e,$13,$17,$1d ; $f81d (*)
     .byte   $1d                             ; $f825 (*)
     
