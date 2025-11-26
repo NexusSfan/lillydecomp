@@ -97,20 +97,30 @@ TIM64T          = $0296
 ;      RIOT RAM (zero-page) labels
 ;-----------------------------------------------------------
 
-ram_80          = $80
-ram_81          = $81
-ram_82          = $82
-ram_83          = $83
-ram_84          = $84
-ram_85          = $85
-ram_86          = $86
-ram_87          = $87
-ram_88          = $88
-ram_89          = $89
-ram_8A          = $8a
-ram_8B          = $8b
-ram_8C          = $8c
-ram_8D          = $8d
+; DECOMP: $80-$8d are background colors
+; Color style: $00 is black, $ff is white
+
+bg_sky_color    = $80
+; DECOMP: First half of the big tree
+bigtree_1_color = $81
+; DECOMP: Second half of the big tree
+bigtree_2_color = $82
+; DECOMP: Two trees
+trees_color     = $83
+; DECOMP: Peak of the hill
+hill_peak_color = $84
+hill_color      = $85
+house_roof      = $86
+house_front     = $87
+house_side      = $88
+; DECOMP: This is below house_front, but it's always(?) equal to frontdown_land
+house_frontdown = $89
+; DECOMP: This is the land(?) on the same area as house_frontdown
+frontdown_land  = $8a
+ocean           = $8b
+; DECOMP: This is the land(?) on the same area as ocean
+other_land      = $8c
+wall            = $8d
 ram_8E          = $8e
 ram_8F          = $8f
 ram_90          = $90
@@ -163,7 +173,7 @@ ram_BE          = $be
 ram_BF          = $bf
 ram_C0          = $c0
 swimming_X      = $c1
-ghost_X          = $c2
+ghost_X         = $c2
 ram_C3          = $c3
 ram_C4          = $c4
 ram_C5          = $c5
@@ -179,7 +189,9 @@ ram_CE          = $ce
 ;                 $cf  (i)
 ;                 $d0  (i)
 ram_D1          = $d1
-ram_D2          = $d2
+; DECOMP: Controls the jump sound.
+; If it goes out of it's normal range it will make random(?) sounds
+jump_sound_ctrl = $d2
 ram_D3          = $d3
 ram_D4          = $d4
 ram_D5          = $d5
@@ -198,7 +210,9 @@ ram_E1          = $e1
 
 ram_E3          = $e3
 ram_E4          = $e4
-audc_ctrl       = $e5 ; ex. audc_ctrl = fa, then audc0/audc1 = a
+; DECOMP: ex. audc_ctrl = fa, then audc0/audc1 = a
+; Setting this to #$00 will (almost) mute the music
+audc_ctrl       = $e5
 ram_E6          = $e6
 ram_E7          = $e7
 ram_E8          = $e8
@@ -226,6 +240,7 @@ ram_EE          = $ee
 Start           = $f1dc
 set_player_dead = $f44a
 store_ghost_X   = $f604
+reset_playerpos = $fab7
 
 
 ;***********************************************************
@@ -239,11 +254,11 @@ Lf000
     sta     NUSIZ0                  ;3        
     sta     NUSIZ1                  ;3        
     sta     HMP1                    ;3        
-    lda     ram_81                  ;3        
+    lda     bigtree_1_color                  ;3        
     sta     COLUP1                  ;3        
-    lda     ram_82                  ;3        
+    lda     bigtree_2_color                  ;3        
     sta     COLUP0                  ;3        
-    lda     ram_84                  ;3        
+    lda     hill_peak_color                  ;3        
     sta     COLUPF                  ;3        
     lda     #$30                    ;2        
     sta     CTRLPF                  ;3        
@@ -291,7 +306,7 @@ Lf042
     sta     GRP0                    ;3        
     sta     GRP1                    ;3        
     sta     PF2                     ;3        
-    lda     ram_85                  ;3        
+    lda     hill_color                  ;3        
     sta     COLUPF                  ;3        
     lda     #$e0                    ;2        
     sta     RESP1                   ;3        
@@ -307,9 +322,9 @@ Lf042
     lda     ram_8E                  ;3        
     sta     PF2                     ;3        
     ldy     #$0f                    ;2        
-    lda     ram_83                  ;3        
+    lda     trees_color                  ;3        
     sta     COLUP1                  ;3        
-    lda     ram_86                  ;3        
+    lda     house_roof                  ;3        
     sta     COLUP0                  ;3        
     sta     WSYNC                   ;3   =  71
 ;---------------------------------------
@@ -343,10 +358,10 @@ Lf0b1
     lda     #$00                    ;2        
     sta     PF1                     ;3        
     sta     PF2                     ;3        
-    lda     ram_87                  ;3        
+    lda     house_front                  ;3        
     sta     COLUPF                  ;3        
-    ldx     ram_8A                  ;3        
-    ldx     ram_8A                  ;3        
+    ldx     frontdown_land                  ;3        
+    ldx     frontdown_land                  ;3        
     lda     (ram_99),y              ;5        
     sta     PF1                     ;3        
     lda     (ram_9B),y              ;5        
@@ -354,7 +369,7 @@ Lf0b1
     sta     PF2                     ;3        
     bmi     Lf0dc                   ;2/3      
     asl     Lf000,x                 ;7        
-    lda     ram_85                  ;3        
+    lda     hill_color                  ;3        
     sta     COLUPF                  ;3        
     jmp     Lf0b1                   ;3   =  67
     
@@ -364,7 +379,7 @@ Lf0dc
     lda     #$00                    ;2        
     sta     ENAM0                   ;3        
     sta     GRP1                    ;3        
-    lda     ram_8B                  ;3        
+    lda     ocean                  ;3        
     sty     NUSIZ1                  ;3        
     sta     WSYNC                   ;3   =  22
 ;---------------------------------------
@@ -378,7 +393,7 @@ Lf0dc
     sta     PF2                     ;3        
     lda     ram_B7                  ;3        
     sta     GRP0                    ;3        
-    lda     ram_88                  ;3        
+    lda     house_side                  ;3        
     sta     COLUP0                  ;3        
     ldx     Lfd1f,y                 ;4        
     lda     Lfd17,y                 ;4        
@@ -387,7 +402,7 @@ Lf0dc
     sta     RESP1                   ;3        
     lda     Lfd27,y                 ;4        
     sta     PF2                     ;3        
-    lda     ram_89                  ;3        
+    lda     house_frontdown                  ;3        
     sta     COLUP1                  ;3        
     lda     #$10                    ;2        
     sta     HMP1                    ;3        
@@ -417,7 +432,7 @@ Lf11f
     ldy     #$0f                    ;2   =  59
 Lf14c
     lda     Lfd2f,y                 ;4        
-    ldx     ram_8C                  ;3        
+    ldx     other_land                  ;3        
     sta     WSYNC                   ;3   =  10
 ;---------------------------------------
     sta     HMOVE                   ;3        
@@ -443,7 +458,7 @@ Lf17d
     sta     WSYNC                   ;3   =   3
 ;---------------------------------------
     sta     HMOVE                   ;3        
-    lda     ram_8D                  ;3        
+    lda     wall                  ;3        
     sta     COLUBK                  ;3        
     ldx     #$33                    ;2        
     stx     PF0                     ;3        
@@ -555,7 +570,7 @@ Lf224
     lda     ram_8E                  ;3        
     sta     GRP1                    ;3        
     inx                             ;2        
-    cpx     #$28                    ;2        
+    cpx     #$10                    ;2        
     bne     Lf204                   ;2/3      
     lda     #$00                    ;2        
     cpx     player_Y                  ;3        
@@ -869,11 +884,11 @@ Lf43a
     bne     Lf450                   ;2/3 =  14 *
 Lf446
     lda     #$0f                    ;2         *
-    sta     ram_D2                  ;3   =   5 *
+    sta     jump_sound_ctrl                  ;3   =   5 *
 set_player_dead
     ; This `ora` statement will always be true because `#$80` is always true.
     lda     #$80                    ;2         *
-    and     player_is_dead          ; DECOMP: If you replace this with `and`, player will not die.
+    ora     player_is_dead          ; DECOMP: If you replace this with `and`, player will not die.
     sta     player_is_dead                  ;3   =   8 *
 Lf450
     bit     player_is_dead                  ;3        
@@ -934,7 +949,7 @@ Lf49d
 Lf4ab
     bit     player_is_dead                  ;3        
     bpl     Lf4b5                   ;2/3      
-    lda     ram_D2                  ;3         *
+    lda     jump_sound_ctrl                  ;3         *
     bne     Lf4ea                   ;2/3       *
     beq     Lf45d                   ;2/3 =  12 *
 Lf4b5
@@ -953,7 +968,7 @@ Lf4b5
     sbc     #$04                    ;2         *
     sta     player_Y                  ;3         *
     lda     #$08                    ;2         *
-    sta     ram_D2                  ;3         *
+    sta     jump_sound_ctrl                  ;3         *
     bne     Lf4ea                   ;2/3 =  42 *
 Lf4d6
     lda     #$df                    ;2         *
@@ -1301,7 +1316,7 @@ Lf6ea
     sta     TIM64T                  ;4        
     lsr     SWCHB                   ;6        
     bcs     Lf714                   ;2/3      
-    jsr     Lfab7                   ;6         *
+    jsr     reset_playerpos                   ;6         *
     lda     #$05                    ;2         *
     sta     ram_D1                  ;3         *
     sta     ram_ED                  ;3   =  36 *
@@ -1411,7 +1426,7 @@ Lf7b6
     sta     ram_DF                  ;3   =  25
 Lf7c7
     dec     aud1_music_ctrl                  ;5        
-    lda     ram_D2                  ;3        
+    lda     jump_sound_ctrl                  ;3        
     bne     Lf7db                   ;2/3      
     lda     audc_ctrl                  ;3        
     sta     AUDC1                   ;3        
@@ -1420,7 +1435,7 @@ Lf7c7
     ldx     #$01                    ;2        
     jsr     Lfafd                   ;6   =  33
 Lf7db
-    ldx     ram_D2                  ;3        
+    ldx     jump_sound_ctrl                  ;3        
     beq     Lf7fc                   ;2/3      
     bit     player_is_dead                  ;3         *
     bpl     Lf7e9                   ;2/3       *
@@ -1428,13 +1443,13 @@ Lf7db
     ldy     #$1f                    ;2         *
     bne     Lf7f4                   ;2/3 =  16 *
 Lf7e9
-    ldy     Lf9b6,x                 ;4         *
+    ldy     Lf81d,x                 ;4         *
     ldx     #$04                    ;2         *
     lda     ram_E8                  ;3         *
     and     #$03                    ;2         *
     bne     Lf810                   ;2/3!=  13 *
 Lf7f4
-    dec     ram_D2                  ;5         *
+    dec     jump_sound_ctrl                  ;5         *
     bne     Lf810                   ;2/3!      *
     lda     #$00                    ;2         *
     beq     Lf812                   ;2/3!=  11 *
@@ -1462,7 +1477,7 @@ Lf818
 Lf81b
     .byte   $c3                             ; $f81b (D)
     .byte   $d3                             ; $f81c (*)
-Lf81d ; DECOMP: Maybe jump SFX?
+Lf81d ; DECOMP: Related to Jump sound.
     .byte   $11,$11,$11,$0e,$0e,$13,$17,$1d ; $f81d (*)
     .byte   $1d                             ; $f825 (*)
     
@@ -1479,7 +1494,7 @@ Lf839
     lda     INTIM                   ;4        
     bne     Lf839                   ;2/3      
     ldx     #$00                    ;2        
-    ldy     ram_80                  ;3        
+    ldy     bg_sky_color                  ;3        
     jsr     Lfa1f                   ;6        
     lda     #$05                    ;2        
     sta     TIM64T                  ;4        
@@ -1594,34 +1609,34 @@ Lf8d6
 Lf8fb
     lda     ram_DC                  ;3        
     jsr     Lfef8                   ;6        
-    sta     ram_88                  ;3        
-    sta     ram_89                  ;3        
-    sta     ram_8A                  ;3        
+    sta     house_side                  ;3        
+    sta     house_frontdown                  ;3        
+    sta     frontdown_land                  ;3        
     lda     ram_DC                  ;3        
     jsr     Lfef6                   ;6        
-    sta     ram_8B                  ;3        
+    sta     ocean                  ;3        
     lda     ram_DC                  ;3        
     jsr     Lfef4                   ;6        
-    sta     ram_8C                  ;3        
+    sta     other_land                  ;3        
     lda     ram_DC                  ;3        
     jsr     Lfef2                   ;6        
-    sta     ram_8D                  ;3        
+    sta     wall                  ;3        
     lda     ram_D5                  ;3        
     and     #$01                    ;2        
     tay                             ;2        
     lda     Lfe70,y                 ;4        
-    sta     ram_80                  ;3        
-    sta     ram_81                  ;3        
-    sta     ram_82                  ;3        
-    sta     ram_86                  ;3        
+    sta     bg_sky_color                  ;3        
+    sta     bigtree_1_color                  ;3        
+    sta     bigtree_2_color                  ;3        
+    sta     house_roof                  ;3        
     lda     ram_D5                  ;3        
     lsr                             ;2        
     and     #$03                    ;2        
     tax                             ;2        
     lda     Lfe72,x                 ;4        
-    sta     ram_84                  ;3        
-    sta     ram_85                  ;3        
-    sta     ram_87                  ;3        
+    sta     hill_peak_color                  ;3        
+    sta     hill_color                  ;3        
+    sta     house_front                  ;3        
     lda     ram_D5                  ;3        
     and     #$0f                    ;2        
     cmp     #$0f                    ;2        
@@ -1654,7 +1669,7 @@ Lf956
     ldy     #$09                    ;2   =  38 *
 Lf974
     lda     (ram_8E),y              ;5         *
-    sta.wy  ram_80,y                ;5         *
+    sta.wy  bg_sky_color,y                ;5         *
     dey                             ;2         *
     bpl     Lf974                   ;2/3       *
     lda     ram_8E                  ;3         *
@@ -1665,7 +1680,7 @@ Lf974
     ldy     #$03                    ;2   =  29 *
 Lf987
     lda     (ram_8E),y              ;5         *
-    sta.wy  ram_8A,y                ;5         *
+    sta.wy  frontdown_land,y                ;5         *
     dey                             ;2         *
     bpl     Lf987                   ;2/3       *
     lda     ram_DD                  ;3         *
@@ -1850,7 +1865,7 @@ Lfaa9
     sta     ram_E1                  ;3        
     sta     ram_E3                  ;3        
     sta     ram_B7                  ;3   =  21
-Lfab7
+reset_playerpos
     lda     #$08                    ;2        
     sta     player_X                  ;3        
     lda     #$24                    ;2        
