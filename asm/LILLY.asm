@@ -178,6 +178,7 @@ ram_C3          = $c3
 ram_C4          = $c4
 ram_C5          = $c5
 ram_C6          = $c6
+; DECOMP: Setting this to #$80 makes the background change color by itself :P
 player_is_dead  = $c7
 ram_C8          = $c8
 ram_C9          = $c9
@@ -185,14 +186,16 @@ ram_CA          = $ca
 ram_CB          = $cb
 timer_1st_half  = $cc
 timer_2nd_half  = $cd
-ram_CE          = $ce
+; DECOMP: If the score is 123456, then $ce = 12, $cf = 34, $d0 = 56
+score           = $ce
 ;                 $cf  (i)
 ;                 $d0  (i)
-ram_D1          = $d1
+; DECOMP: This counter is useless, but is still there.
+lives            = $d1
 ; DECOMP: Controls the jump sound.
 ; If it goes out of it's normal range it will make random(?) sounds
 jump_sound_ctrl = $d2
-ram_D3          = $d3
+levels_done     = $d3
 ram_D4          = $d4
 ram_D5          = $d5
 ram_D6          = $d6
@@ -853,7 +856,7 @@ Lf3e3
     jsr     Lfb44                   ;6        
     lda     #$3a                    ;2        
     sta     TIM64T                  ;4        
-    lda     ram_D1                  ;3        
+    lda     lives                  ;3        
     beq     Lf450                   ;2/3      
     bit     player_is_dead                  ;3         *
     bmi     Lf450                   ;2/3       *
@@ -911,15 +914,15 @@ Lf45d
     lda     #$7f                    ;2         *
     and     player_is_dead                  ;3         *
     sta     player_is_dead                  ;3         *
-    lda     ram_D1                  ;3         *
+    lda     lives                  ;3         *
     beq     Lf487                   ;2/3       *
     bit     SWCHB                   ;4         *
     bpl     Lf47f                   ;2/3       *
-    lda     ram_D1                  ;3         *
+    lda     lives                  ;3         *
     sec                             ;2         *
     sed                             ;2         *
     sbc     #$01                    ;2         *
-    sta     ram_D1                  ;3         *
+    sta     lives                  ;3         *
     cld                             ;2         *
     beq     Lf487                   ;2/3 =  45 *
 Lf47f
@@ -957,7 +960,7 @@ Lf4ab
     bne     Lf4ea                   ;2/3       *
     beq     Lf45d                   ;2/3 =  12 *
 Lf4b5
-    lda     ram_D1                  ;3        
+    lda     lives                  ;3        
     beq     Lf4ea                   ;2/3      
     bit     INPT4                   ;3         *
     bmi     Lf4d6                   ;2/3       *
@@ -1018,7 +1021,7 @@ Lf517
     and     player_is_dead                  ;3         *
     sta     player_is_dead                  ;3   =   8 *
 Lf51d
-    lda     ram_D1                  ;3        
+    lda     lives                  ;3        
     beq     Lf590                   ;2/3      
     lda     player_X                  ;3         *
     bit     CXP0FB                  ;3         *
@@ -1057,9 +1060,9 @@ Lf558
     clc                             ;2         *
     sed                             ;2   =  11 *
 Lf560
-    lda     ram_CE,x                ;4         *
+    lda     score,x                ;4         *
     adc     ram_CB,x                ;4         *
-    sta     ram_CE,x                ;4         *
+    sta     score,x                ;4         *
     dex                             ;2         *
     bpl     Lf560                   ;2/3       *
     cld                             ;2         *
@@ -1067,15 +1070,15 @@ Lf560
     stx     timer_2nd_half                  ;3         *
     lda     #$10                    ;2         *
     sta     timer_1st_half                  ;3         *
-    lda     ram_D1                  ;3         *
+    lda     lives                  ;3         *
     sed                             ;2         *
     clc                             ;2         *
     adc     #$01                    ;2         *
-    sta     ram_D1                  ;3         *
-    lda     ram_D3                  ;3         *
+    sta     lives                  ;3         *
+    lda     levels_done                  ;3         *
     clc                             ;2         *
     adc     #$01                    ;2         *
-    sta     ram_D3                  ;3         *
+    sta     levels_done                  ;3         *
     cld                             ;2         *
     inc     ram_D5                  ;5         *
     lda     ram_D5                  ;3         *
@@ -1322,7 +1325,7 @@ Lf6ea
     bcs     Lf714                   ;2/3      
     jsr     reset_playerpos                   ;6         *
     lda     #$05                    ;2         *
-    sta     ram_D1                  ;3         *
+    sta     lives                  ;3         *
     sta     ram_ED                  ;3   =  36 *
 Lf714
     ldy     #$ea                    ;2        

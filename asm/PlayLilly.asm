@@ -178,6 +178,7 @@ ram_C3          = $c3
 ram_C4          = $c4
 ram_C5          = $c5
 ram_C6          = $c6
+; DECOMP: Setting this to #$80 makes the background change color by itself :P
 player_is_dead  = $c7
 ram_C8          = $c8
 ram_C9          = $c9
@@ -570,7 +571,11 @@ Lf224
     lda     ram_8E                  ;3        
     sta     GRP1                    ;3        
     inx                             ;2        
-    cpx     #$10                    ;2        
+    ; DECOMP: Handles Y position of enemies?
+    ; Setting to below #$20 makes the game impossible :D
+    ; Setting to #$33 removes all enemies? except bird
+    ; But #$34 breaks the game.
+    cpx     #$28                    ;2        
     bne     Lf204                   ;2/3      
     lda     #$00                    ;2        
     cpx     player_Y                  ;3        
