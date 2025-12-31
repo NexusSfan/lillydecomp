@@ -11,7 +11,7 @@ Use [Ghidra] with the [RetroGhidra] plugin (which supports Atari VCS) to decompi
 We are using [dasm] to compile the code.
 
 ## Documentation
-After documenting variables/functions to `asm/LILLY.asm` (main decomp file), run `python tools/doccheck.py asm/LILLY.asm` and put the output in your PR.
+After documenting variables/functions to `asm/LILLY.asm` (main decomp file), run `python3 tools/doccheck.py asm/LILLY.asm` and put the output in your PR.
 
 ## License
 By contributing to this project, you agree to use the CC0 license for the project.

@@ -1,6 +1,7 @@
 name: doccheck
 on:
   push:
+    branches: ["dev"]
 
 jobs:
   doccheck:
