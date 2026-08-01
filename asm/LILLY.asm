@@ -179,7 +179,7 @@ ram_C4          = $c4
 ram_C5          = $c5
 ram_C6          = $c6
 ; DECOMP: Setting this to #$80 makes the background change color by itself :P
-player_is_dead  = $c7
+player_status   = $c7 ;; #$60 = jumping, #$20 = falling/ground, #$80 = dead
 ram_C8          = $c8
 ram_C9          = $c9
 ram_CA          = $ca
@@ -244,6 +244,10 @@ Start           = $f1dc
 set_player_dead = $f44a
 store_ghost_X   = $f604
 reset_playerpos = $fab7
+player_jump     = $f4b5
+player_jump2    = $f490
+lda_00          = $f58c
+sta_ram_BF      = $f58e
 
 
 ;***********************************************************
@@ -858,7 +862,7 @@ Lf3e3
     sta     TIM64T                  ;4        
     lda     lives                  ;3        
     beq     Lf450                   ;2/3      
-    bit     player_is_dead                  ;3         *
+    bit     player_status                  ;3         *
     bmi     Lf450                   ;2/3       *
     lda     ram_E8                  ;3         *
     and     #$07                    ;2         *
@@ -893,12 +897,12 @@ Lf446
     lda     #$0f                    ;2         *
     sta     jump_sound_ctrl                  ;3   =   5 *
 set_player_dead
-    ; This `ora` statement will always be true because `#$80` is always true.
+    ; DECOMP: Not sure what these first 2 lines of assembly are for.
     lda     #$80                    ;2         *
-    ora     player_is_dead          ; DECOMP: If you replace this with `and`, player will not die.
-    sta     player_is_dead                  ;3   =   8 *
+    ora     player_status          ; DECOMP: If you replace this with `and`, player will not die.
+    sta     player_status                  ;3   =   8 *
 Lf450
-    bit     player_is_dead                  ;3        
+    bit     player_status                  ;3        
     bvc     Lf457                   ;2/3      
     jmp     Lf4ed                   ;3   =   8 *
     
@@ -912,8 +916,8 @@ Lf45d
     lda     #$08                    ;2         *
     sta     player_X                  ;3         *
     lda     #$7f                    ;2         *
-    and     player_is_dead                  ;3         *
-    sta     player_is_dead                  ;3         *
+    and     player_status                  ;3         *
+    sta     player_status                  ;3         *
     lda     lives                  ;3         *
     beq     Lf487                   ;2/3       *
     bit     SWCHB                   ;4         *
@@ -933,11 +937,11 @@ Lf47f
 Lf487
     lda     ram_D4                  ;3         *
     lsr                             ;2         *
-    bcc     Lf490                   ;2/3       *
+    bcc     player_jump2                   ;2/3       *
     lda     #$50                    ;2         *
     sta     ghost_X                  ;3   =  12 *
-Lf490
-    jmp     Lf4b5                   ;3   =   3 *
+player_jump2
+    jmp     player_jump                   ;3   =   3 *
     
 Lf493
     bit     CXP0FB                  ;3        
@@ -946,7 +950,7 @@ Lf493
     cmp     #$29                    ;2        
     bcc     Lf4ab                   ;2/3 =  12
 Lf49d
-    bit     player_is_dead                  ;3        
+    bit     player_status                  ;3        
     bmi     Lf4e2                   ;2/3      
     bit     CXPPMM                  ;3        
     bpl     Lf4e2                   ;2/3      
@@ -954,33 +958,35 @@ Lf49d
     cmp     #$36                    ;2         *
     bcc     Lf4e2                   ;2/3 =  17 *
 Lf4ab
-    bit     player_is_dead                  ;3        
-    bpl     Lf4b5                   ;2/3      
+    bit     player_status                  ;3        
+    bpl     player_jump                   ;2/3      
     lda     jump_sound_ctrl                  ;3         *
     bne     Lf4ea                   ;2/3       *
     beq     Lf45d                   ;2/3 =  12 *
-Lf4b5
+player_jump
+    ; DECOMP: If the player is alive, the fire button is pressed, and the player isn't already dead/jumping: set the jump status flag, move the player's Y-position upward by 4 pixels, and trigger the jump sound effect
     lda     lives                  ;3        
     beq     Lf4ea                   ;2/3      
     bit     INPT4                   ;3         *
     bmi     Lf4d6                   ;2/3       *
     lda     #$20                    ;2         *
-    bit     player_is_dead                  ;3         *
+    bit     player_status                  ;3         *
     bne     Lf4ea                   ;2/3       *
     lda     #$60                    ;2         *
-    ora     player_is_dead                  ;3         *
-    sta     player_is_dead                  ;3         *
+    ora     player_status                  ;3         *
+    sta     player_status                  ;3         *
     lda     player_Y                  ;3         *
     sec                             ;2         *
     sbc     #$04                    ;2         *
     sta     player_Y                  ;3         *
+    ;; #$08 for jump_sound_ctrls does the normal jump sound.
     lda     #$08                    ;2         *
     sta     jump_sound_ctrl                  ;3         *
     bne     Lf4ea                   ;2/3 =  42 *
 Lf4d6
     lda     #$df                    ;2         *
-    and     player_is_dead                  ;3         *
-    sta     player_is_dead                  ;3         *
+    and     player_status                  ;3         *
+    sta     player_status                  ;3         *
     lda     #$00                    ;2         *
     sta     ram_C8                  ;3         *
     beq     Lf4ea                   ;2/3 =  15 *
@@ -1017,9 +1023,10 @@ Lf507
     sta     ram_C8                  ;3         *
     bne     Lf51d                   ;2/3 =  22 *
 Lf517
+    ; DECOMP: Bitwise AND, clears bit 6
     lda     #$bf                    ;2         *
-    and     player_is_dead                  ;3         *
-    sta     player_is_dead                  ;3   =   8 *
+    and     player_status                  ;3         *
+    sta     player_status                  ;3   =   8 *
 Lf51d
     lda     lives                  ;3        
     beq     Lf590                   ;2/3      
@@ -1042,15 +1049,15 @@ Lf52f
     dec     player_X                  ;5   =  24 *
 Lf542
     lda     #$08                    ;2         *
-    bne     Lf58e                   ;2/3 =   4 *
+    bne     sta_ram_BF                   ;2/3 =   4 *
 Lf546 ; DECOMP: Check if level is completed?
-    bit     player_is_dead                  ;3         *
+    bit     player_status                  ;3         *
     bmi     Lf590                   ;2/3       *
     cmp     #$9f                    ;2         *
     bcs     Lf558                   ;2/3       *
     lda     #$03                    ;2         *
     and     ram_E8                  ;3         *
-    bne     Lf58c                   ;2/3       *
+    bne     lda_00                   ;2/3       *
     inc     player_X                  ;5         *
     bne     Lf590                   ;2/3 =  23 *
 Lf558
@@ -1085,9 +1092,10 @@ Lf560
     and     #$03                    ;2         *
     sta     ram_D4                  ;3         *
     jsr     Lf8d6                   ;6   =  71 *
-Lf58c
+;; DECOMP: Obvious. These are used due to limitations in 6502 Assembly.
+lda_00
     lda     #$00                    ;2   =   2 *
-Lf58e
+sta_ram_BF
     sta     ram_BF                  ;3   =   3 *
 Lf590
     lda     ram_E8                  ;3        
@@ -1329,7 +1337,7 @@ Lf6ea
     sta     ram_ED                  ;3   =  36 *
 Lf714
     ldy     #$ea                    ;2        
-    bit     player_is_dead                  ;3        
+    bit     player_status                  ;3        
     bmi     Lf72a                   ;2/3      
     bit     CXPPMM                  ;3        
     bmi     Lf722                   ;2/3      
@@ -1444,7 +1452,7 @@ Lf7c7
 Lf7db
     ldx     jump_sound_ctrl                  ;3        
     beq     Lf7fc                   ;2/3      
-    bit     player_is_dead                  ;3         *
+    bit     player_status                  ;3         *
     bpl     Lf7e9                   ;2/3       *
     ldx     #$03                    ;2         *
     ldy     #$1f                    ;2         *
@@ -1880,7 +1888,7 @@ reset_playerpos
     lda     #$00                    ;2        
     ldx     #$16                    ;2   =  14
 Lfac3
-    sta     player_is_dead,x                ;4        
+    sta     player_status,x                ;4        
     dex                             ;2        
     bpl     Lfac3                   ;2/3      
     lda     #$10                    ;Default value for timer first half
