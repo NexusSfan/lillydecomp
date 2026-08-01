@@ -249,6 +249,7 @@ player_jump     = $f4b5
 player_jump2    = $f490
 lda_00          = $f58c
 sta_player_side = $f58e
+store_aud       = $f812
 
 
 ;***********************************************************
@@ -1468,7 +1469,7 @@ Lf7f4
     dec     jump_sound_ctrl                  ;5         *
     bne     Lf810                   ;2/3!      *
     lda     #$00                    ;2         *
-    beq     Lf812                   ;2/3!=  11 *
+    beq     store_aud                   ;2/3!=  11 *
 Lf7fc
     lda     player_Y                  ;3        
     sec                             ;2        
@@ -1480,10 +1481,10 @@ Lf7fc
     lsr                             ;2         *
     eor     #$0f                    ;2         *
     ldx     #$0c                    ;2         *
-    bne     Lf812                   ;2/3 =  26 *
+    bne     store_aud                   ;2/3 =  26 *
 Lf810
     lda     #$0f                    ;2   =   2 *
-Lf812
+store_aud
     sta     AUDV1                   ;3         *
     stx     AUDC1                   ;3         *
     sty     AUDF1                   ;3   =   9 *
