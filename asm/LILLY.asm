@@ -170,7 +170,8 @@ hawk_Y          = $bb
 ;                 $bc  (i)
 player_Y        = $bd
 ram_BE          = $be
-ram_BF          = $bf
+; DECOMP: TODO: Verify
+player_side     = $bf
 ram_C0          = $c0
 swimming_X      = $c1
 ghost_X         = $c2
@@ -247,7 +248,7 @@ reset_playerpos = $fab7
 player_jump     = $f4b5
 player_jump2    = $f490
 lda_00          = $f58c
-sta_ram_BF      = $f58e
+sta_player_side = $f58e
 
 
 ;***********************************************************
@@ -506,7 +507,7 @@ Lf1b9
     sta     HMOVE                   ;3        
     lda     ram_EE                  ;3        
     sta     COLUP1                  ;3        
-    lda     ram_BF                  ;3        
+    lda     player_side                  ;3        
     sta     REFP0                   ;3        
     lda     #$31                    ;2        
     sta     CTRLPF                  ;3        
@@ -1049,7 +1050,7 @@ Lf52f
     dec     player_X                  ;5   =  24 *
 Lf542
     lda     #$08                    ;2         *
-    bne     sta_ram_BF                   ;2/3 =   4 *
+    bne     sta_player_side                   ;2/3 =   4 *
 Lf546 ; DECOMP: Check if level is completed?
     bit     player_status                  ;3         *
     bmi     Lf590                   ;2/3       *
@@ -1095,8 +1096,8 @@ Lf560
 ;; DECOMP: Obvious. These are used due to limitations in 6502 Assembly.
 lda_00
     lda     #$00                    ;2   =   2 *
-sta_ram_BF
-    sta     ram_BF                  ;3   =   3 *
+sta_player_side
+    sta     player_side                  ;3   =   3 *
 Lf590
     lda     ram_E8                  ;3        
     lsr                             ;2        
